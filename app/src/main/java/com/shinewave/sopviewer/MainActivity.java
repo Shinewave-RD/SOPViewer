@@ -19,7 +19,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+        FileMamagerFragment.OnFragmentInteractionListener
+    {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -50,21 +52,30 @@ public class MainActivity extends AppCompatActivity
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = PlaceholderFragment.newInstance(position + 1); //default
+        switch (position +1) {
+            case 1:
+                fragment = FileMamagerFragment.newInstance("","");
+                break;
+        }
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, fragment)
                 .commit();
     }
 
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
+                mTitle = getString(R.string.nav_1_file_manager);
                 break;
             case 2:
-                mTitle = getString(R.string.title_section2);
+                mTitle = getString(R.string.nav_2_connetion_manager);
                 break;
             case 3:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.nav_3_playlist);
+                break;
+            case 4:
+                mTitle = getString(R.string.nav_4_settings);
                 break;
         }
     }
@@ -105,7 +116,12 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
+        @Override
+        public void onFragmentInteraction(String id) {
+
+        }
+
+        /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {

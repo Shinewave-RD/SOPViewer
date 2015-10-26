@@ -24,4 +24,8 @@
     <string name="okay">完成</string>
     <string name="choose_value">選擇數值</string>
     <string name="enter_password">輸入密碼</string>
+    <string name="nav_1_file_manager">檔案管理</string>
+    <string name="nav_2_connetion_manager">連線管理</string>
+    <string name="nav_3_playlist">撥放清單</string>
+    <string name="nav_4_settings">撥放設定</string>
 </resources>

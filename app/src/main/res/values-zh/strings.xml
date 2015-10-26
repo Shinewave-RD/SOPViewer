@@ -24,4 +24,8 @@
     <string name="okay">确定</string>
     <string name="choose_value">选择值</string>
     <string name="enter_password">输入密码</string>
+    <string name="nav_1_file_manager">File Manager</string>
+    <string name="nav_2_connetion_manager">Connection Manager</string>
+    <string name="nav_3_playlist">Playlist</string>
+    <string name="nav_4_settings">Viewer Settings</string>
 </resources>
