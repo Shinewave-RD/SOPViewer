@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        FileMamagerFragment.OnFragmentInteractionListener
+        IFragmentInteraction
     {
 
     /**
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = PlaceholderFragment.newInstance(position + 1); //default
         switch (position +1) {
             case 1:
-                fragment = FileMamagerFragment.newInstance("","");
+                fragment = FileMamagerFragment.newInstance(position + 1,"");
                 break;
         }
         fragmentManager.beginTransaction()
