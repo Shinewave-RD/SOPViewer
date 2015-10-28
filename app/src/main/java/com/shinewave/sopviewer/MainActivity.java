@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case 2:
                 fragment = ConnectionManagerFragment.newInstance(position + 1,"");
+                fragmentBtn = ConnectionBtnFragment.newInstance("","");
                 break;
         }
         fragmentManager.beginTransaction()
