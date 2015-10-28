@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity
                 fragment = FileMamagerFragment.newInstance(position + 1,"");
                 fragmentBtn = FileBtnFragment.newInstance("","");
                 break;
+            case 2:
+                fragment = ConnectionManagerFragment.newInstance(position + 1,"");
+                break;
         }
         fragmentManager.beginTransaction()
                 .replace(R.id.container, fragment)
