@@ -53,13 +53,18 @@ public class MainActivity extends AppCompatActivity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = PlaceholderFragment.newInstance(position + 1); //default
+        Fragment fragmentBtn = PlaceholderFragment.newInstance(position + 1);
         switch (position +1) {
             case 1:
                 fragment = FileMamagerFragment.newInstance(position + 1,"");
+                fragmentBtn = FileBtnFragment.newInstance("","");
                 break;
         }
         fragmentManager.beginTransaction()
                 .replace(R.id.container, fragment)
+                .commit();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container_btn, fragmentBtn)
                 .commit();
     }
 
