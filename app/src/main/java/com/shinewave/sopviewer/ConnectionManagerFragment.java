@@ -76,7 +76,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+                android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
     }
 
     @Override
@@ -88,6 +88,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
+        mListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
