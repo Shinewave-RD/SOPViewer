@@ -1,6 +1,8 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.app.Fragment;
@@ -8,6 +10,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+
+import java.util.List;
 
 
 /**
@@ -29,6 +36,7 @@ public class ConnectionBtnFragment extends Fragment {
     private String mParam2;
 
     private IFragmentInteraction mListener;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -65,7 +73,18 @@ public class ConnectionBtnFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_connection_btn, container, false);
+        View view = inflater.inflate(R.layout.fragment_connection_btn, container, false);
+
+        Button btnCreate = (Button) view.findViewById(R.id.createBtn);
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showConnectionSettingDialog();
+            }
+        });
+
+        return view;
     }
 
     @Override
@@ -83,6 +102,38 @@ public class ConnectionBtnFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void showConnectionSettingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View textEntryView = factory.inflate(R.layout.connection_setting, null);
+        builder.setTitle("Connection Setting");
+        builder.setView(textEntryView);
+
+        ArrayAdapter protocolAdapter = new ArrayAdapter<ConnectionInfo.ProtocolType>(getActivity(),
+                android.R.layout.simple_spinner_item, ConnectionInfo.ProtocolType.values());
+        final Spinner sp = (Spinner) textEntryView.findViewById(R.id.spinProtocol);
+        sp.setAdapter(protocolAdapter);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Object b = ((ConnectionInfo.ProtocolType)sp.getSelectedItem()).toInt();
+                ConnectionInfo info = new ConnectionInfo();
+                // @Leven add to show filelist after login
+                //handler.post(mFilenameChanged);
+                // @Leven add to judge show alertdialog or not
+                //done = true;
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.create().show();
     }
 
 }

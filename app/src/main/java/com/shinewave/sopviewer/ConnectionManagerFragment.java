@@ -1,6 +1,8 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,8 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
+
+import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -136,5 +140,28 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         }
     }
 
+    private List<ConnectionInfo> getConnectionList()
+    {
+        return null;
+    }
 
+    private boolean saveConnection(ConnectionInfo conn)
+    {
+        return true;
+    }
+
+    private boolean deleteConnection(String connName)
+    {
+        return true;
+    }
+
+    private boolean updateConnection(ConnectionInfo conn)
+    {
+        return true;
+    }
+
+    private void doConnection(ConnectionInfo conn)
+    {
+
+    }
 }
