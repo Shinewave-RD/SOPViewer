@@ -1,5 +1,6 @@
 package com.shinewave.sopviewer;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -42,30 +43,14 @@ public class DBManager {
         return aa;
     }
 
-    public static boolean saveFileInfo(DataBaseHelper dbAccess, FileInfo info) {
+    public static boolean insertFileInfo(DataBaseHelper dbAccess, FileInfo info) {
 
         mydbAccess = dbAccess;  //keep dbhelper instance
         SQLiteDatabase db = dbAccess.getReadableDatabase();
 
         Cursor cr = null;
-        try {
-            cr = db.rawQuery("SELECT * FROM SOPViewer_FileInfo", null);
-        } catch (Exception e) {
-            //
-        }
-
-        if (cr != null) {
-            cr.moveToFirst();
-
-            for (int i = 0; i < cr.getCount(); i++) {
-
-                cr.moveToNext();
-            }
-
-            cr.close();
-        }
+        cr.close();
         db.close();
-
         return true;
     }
 
@@ -75,49 +60,28 @@ public class DBManager {
         SQLiteDatabase db = dbAccess.getReadableDatabase();
 
         Cursor cr = null;
-        try {
-            cr = db.rawQuery("SELECT * FROM SOPViewer_FileInfo", null);
-        } catch (Exception e) {
-            //
-        }
-
-        if (cr != null) {
-            cr.moveToFirst();
-
-            for (int i = 0; i < cr.getCount(); i++) {
-
-                cr.moveToNext();
-            }
-
-            cr.close();
-        }
+        cr.close();
         db.close();
-
         return true;
     }
 
-    public static boolean updateFileInfo(DataBaseHelper dbAccess, FileInfo info) {
+    public static boolean updateFileInfo(FileInfo info) {
 
-        mydbAccess = dbAccess;  //keep dbhelper instance
-        SQLiteDatabase db = dbAccess.getReadableDatabase();
+        SQLiteDatabase db = mydbAccess.getWritableDatabase();
 
-        Cursor cr = null;
-        try {
-            cr = db.rawQuery("SELECT * FROM SOPViewer_FileInfo", null);
-        } catch (Exception e) {
-            //
-        }
-
-        if (cr != null) {
-            cr.moveToFirst();
-
-            for (int i = 0; i < cr.getCount(); i++) {
-
-                cr.moveToNext();
+        for (int count = 0; count < 1; count++) {
+            String name = info.localFullFilePath;
+            ContentValues ctv = new ContentValues();
+            ctv.put("remoteFullFilePath", info.remoteFullFilePath);
+            ctv.put("connectionName", info.connectionName);
+            ctv.put("size", info.size);
+            ctv.put("remoteTimeStamp", info.remoteTimeStamp.toString());
+            ctv.put("updateTime", info.updateTime.toString());
+            try {
+                db.update("SOPViewer_FileInfo", ctv, "command=?", new String[]{name});
+            } catch (Exception e) {
+                //
             }
-
-
-            cr.close();
         }
         db.close();
 

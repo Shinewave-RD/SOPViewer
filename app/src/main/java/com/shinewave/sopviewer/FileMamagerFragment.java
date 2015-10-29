@@ -75,7 +75,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
 
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+                android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
     }
 
     @Override
@@ -86,7 +86,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-
+        // Set SINGLE CHOICE MODE
+        mListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
