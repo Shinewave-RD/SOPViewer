@@ -28,4 +28,6 @@
     <string name="nav_2_connetion_manager">Connection Manager</string>
     <string name="nav_3_playlist">Playlist</string>
     <string name="nav_4_settings">Viewer Settings</string>
+    <string name="label_source">Source:</string>
+    <string name="label_last_update">Last update:</string>
 </resources>
