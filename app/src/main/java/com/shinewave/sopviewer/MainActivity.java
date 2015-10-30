@@ -18,10 +18,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
-        IFragmentInteraction
-    {
+        IFragmentInteraction {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -37,6 +38,13 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            DataBaseHelper dbHelper = new DataBaseHelper(this.getApplicationContext());
+            dbHelper.createDataBase();
+            DBManager.initDBHelp(dbHelper);
+        } catch (IOException e) {
+            //
+        }
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -54,14 +62,14 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = PlaceholderFragment.newInstance(position + 1); //default
         Fragment fragmentBtn = PlaceholderFragment.newInstance(position + 1);
-        switch (position +1) {
+        switch (position + 1) {
             case 1:
-                fragment = FileMamagerFragment.newInstance(position + 1,"");
-                fragmentBtn = FileBtnFragment.newInstance("","");
+                fragment = FileMamagerFragment.newInstance(position + 1, "");
+                fragmentBtn = FileBtnFragment.newInstance("", "");
                 break;
             case 2:
-                fragment = ConnectionManagerFragment.newInstance(position + 1,"");
-                fragmentBtn = ConnectionBtnFragment.newInstance("","");
+                fragment = ConnectionManagerFragment.newInstance(position + 1, "");
+                fragmentBtn = ConnectionBtnFragment.newInstance("", "");
                 break;
         }
         fragmentManager.beginTransaction()
@@ -125,12 +133,12 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-        @Override
-        public void onFragmentInteraction(String id) {
+    @Override
+    public void onFragmentInteraction(String id) {
 
-        }
+    }
 
-        /**
+    /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
