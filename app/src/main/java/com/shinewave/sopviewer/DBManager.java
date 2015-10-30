@@ -101,7 +101,7 @@ public class DBManager {
         return res;
     }
 
-    public static List<FileInfo> getConnectionList() {
+    public static List<ConnectionInfo> getConnectionList() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
 
         Cursor cr = null;
@@ -118,7 +118,7 @@ public class DBManager {
             cr.close();
         }
         db.close();
-        List<FileInfo> aa = new ArrayList<>();
+        List<ConnectionInfo> aa = new ArrayList<>();
         return aa;
     }
 
@@ -173,7 +173,7 @@ public class DBManager {
         return res;
     }
 
-    public static List<FileInfo> getPlayList() {
+    public static List<PlayList> getPlayList() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
 
         Cursor cr = null;
@@ -190,7 +190,7 @@ public class DBManager {
             cr.close();
         }
         db.close();
-        List<FileInfo> aa = new ArrayList<>();
+        List<PlayList> aa = new ArrayList<>();
         return aa;
     }
 
