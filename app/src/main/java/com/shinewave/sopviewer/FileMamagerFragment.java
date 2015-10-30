@@ -162,6 +162,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 if (sf.isDirectory()) {
                     setupFileList(list, sf.getAbsolutePath());
 
+                    mListView.clearChoices();
+
                     mAdapter.notifyDataSetChanged();
                 }
             } catch (ClassCastException ec) {
