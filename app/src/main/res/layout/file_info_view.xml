@@ -10,7 +10,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView"
+            android:id="@+id/fv_imageView"
             android:src="@drawable/pdf" />
 
         <TextView
@@ -18,41 +18,29 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="FileName"
-            android:id="@+id/textViewFile" />
+            android:id="@+id/fv_textViewFile"
+            android:layout_gravity="center_vertical" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/label_source"
-            android:id="@+id/textView2" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="connection1"
-            android:id="@+id/textViewConn" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/label_last_update"
-            android:id="@+id/textView4"
-            android:layout_marginLeft="20dp" />
+            android:id="@+id/fv_textViewConn" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="21015/12/31"
-            android:id="@+id/textViewLastestDT" />
+            android:id="@+id/fv_textViewLastestDT"
+            android:layout_marginLeft="20dp" />
 
     </LinearLayout>
 

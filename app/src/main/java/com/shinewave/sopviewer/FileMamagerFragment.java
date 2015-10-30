@@ -3,7 +3,9 @@ package com.shinewave.sopviewer;
 import android.app.Activity;
 import android.os.Bundle;
 //import android.app.Fragment;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +13,16 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * A fragment representing a list of Items.
@@ -26,6 +35,7 @@ import com.shinewave.sopviewer.dummy.DummyContent;
  */
 public class FileMamagerFragment extends Fragment implements AbsListView.OnItemClickListener {
 
+    private static final String TAG = "FileMamagerFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -33,6 +43,14 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     // TODO: Rename and change types of parameters
     private int mParam1;
     private String mParam2;
+
+    private static final String FV_IMAGE = "image";
+    private static final String FV_FILE_NAME = "fileName";
+    private static final String FV_CONNECTION = "connection_name";
+    private static final String FV_UPDATE_DT = "last_update_time";
+    private static final String FV_File = "fileObject";
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private IFragmentInteraction mListener;
 
@@ -45,7 +63,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private SimpleAdapter mAdapter;
+    private ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
 
     // TODO: Rename and change types of parameters
     public static FileMamagerFragment newInstance(int param1, String param2) {
@@ -74,8 +93,25 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
 
         // TODO: Change Adapter to display your content
+        /*
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
                 android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
+        */
+        setupFileList(list, null);
+
+        mAdapter = new SimpleAdapter(
+                getActivity(),
+                list,
+                R.layout.file_info_view,
+                new String[] {FV_IMAGE,
+                        FV_FILE_NAME,
+                        FV_CONNECTION,
+                        FV_UPDATE_DT},
+                new int[] {R.id.fv_imageView,
+                        R.id.fv_textViewFile,
+                        R.id.fv_textViewConn,
+                        R.id.fv_textViewLastestDT}
+        );
     }
 
     @Override
@@ -118,7 +154,20 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+//            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            try
+            {
+                HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
+                File sf = (File) o.get(FV_File);
+                if (sf.isDirectory()) {
+                    setupFileList(list, sf.getAbsolutePath());
+
+                    mAdapter.notifyDataSetChanged();
+                }
+            } catch (ClassCastException ec) {
+                //normal case
+            }
+
         }
     }
 
@@ -135,6 +184,53 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
     }
 
+    private void setupFileList(ArrayList<HashMap<String,Object>> list, String path) {
+        //clear before setup
+        list.clear();
 
+        HashMap<String, Object> fItem = null;
+
+        if ((null != path) && !path.isEmpty()
+                && !path.equalsIgnoreCase(Environment.getExternalStorageDirectory().toString())) {
+            //use the provided path
+            fItem = new HashMap<String, Object>();
+            fItem.put(FV_IMAGE,R.drawable.forder_back);
+            fItem.put(FV_FILE_NAME,"BACK");
+            fItem.put(FV_CONNECTION, "");
+            fItem.put(FV_UPDATE_DT,"");
+            fItem.put(FV_File,new File(path).getParentFile());
+
+            list.add(fItem);
+        } else {
+            path = Environment.getExternalStorageDirectory().toString();
+        }
+
+        //query localfile
+        try {
+            Log.d(TAG, "Path: " + path);
+            File f = new File(path);
+            File file[] = f.listFiles();
+            Log.d(TAG, "Size: " + file.length);
+
+            for (int i = 0; i < file.length; i++) {
+                Log.d(TAG, "FileName:" + file[i].getName());
+                File f1 = file[i];
+                if (!f1.canRead())
+                    continue;
+                fItem = new HashMap<String, Object>();
+
+                fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
+                fItem.put(FV_FILE_NAME, f1.getName());
+                fItem.put(FV_CONNECTION, getString(R.string.label_source) + "Local");
+                fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
+                        sdf.format(new Date(f1.lastModified())));
+                fItem.put(FV_File, f1);
+
+                list.add(fItem);
+            }
+        } catch (Exception e) {
+            Log.w(TAG,e.getMessage());
+        }
+    }
 
 }
