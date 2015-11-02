@@ -1,0 +1,68 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shinewave.sopviewer.ViewerSettingsFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <RadioGroup
+            android:id="@+id/ticketType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" >
+
+            <RadioButton
+                android:id="@+id/rbFitScreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="32dp"
+                android:layout_margin="5dp"
+                android:text="Fit Screen" />
+
+            <RadioButton
+                android:id="@+id/rbFitWidth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="32dp"
+                android:layout_margin="5dp"
+                android:text="Fit Width" />
+
+            <RadioButton
+                android:id="@+id/rbFitHeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="32dp"
+                android:layout_margin="5dp"
+                android:text="Fit Height" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:textSize="32dp"
+            android:layout_margin="5dp"
+            android:text="" />
+        <CheckBox
+            android:id="@+id/cbVerticalAutoScroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="32dp"
+            android:layout_margin="5dp"
+            android:text="Vertical Auto Scroll" />
+        <CheckBox
+            android:id="@+id/cbHorizontalAutoScroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="32dp"
+            android:layout_margin="5dp"
+            android:text="Horizontal Auto Scroll" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

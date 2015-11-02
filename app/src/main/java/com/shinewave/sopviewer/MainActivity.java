@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity
                 fragment = ConnectionManagerFragment.newInstance(position + 1, "");
                 fragmentBtn = ConnectionBtnFragment.newInstance("", "");
                 break;
+            case 4:
+                fragment = ViewerSettingsFragment.newInstance(position + 1, "");
+                break;
         }
         fragmentManager.beginTransaction()
                 .replace(R.id.container, fragment)
