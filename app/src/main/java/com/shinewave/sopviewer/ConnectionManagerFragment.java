@@ -48,11 +48,15 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     private int mParam1;
     private String mParam2;
 
-    private static final String FV_CONNECTION = "connectionName";
+    private static final String FV_NAME= "connectionName";
     private static final String FV_URL = "url";
+    private static final String FV_CONNECTION = "fileObject";
+
 
     private IFragmentInteraction mListener;
     private ArrayList<HashMap<String,Object>> connList = new ArrayList<HashMap<String,Object>>();
+    private ConnectionInfo info;
+
     /**
      * The fragment's ListView/GridView.
      */
@@ -62,7 +66,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private SimpleAdapter mAdapter;
 
     // TODO: Rename and change types of parameters
     public static ConnectionManagerFragment newInstance(int param1, String param2) {
@@ -100,27 +104,13 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_connectionmanager, container, false);
 
-        List<ConnectionInfo> list = DBManager.getConnectionList();
-
-        try {
-            for (int i = 0; i < list.size(); i++) {
-
-                ConnectionInfo info = list.get(i);
-                HashMap<String, Object> cItem = new HashMap<String, Object>();
-
-                cItem.put(FV_CONNECTION, info.connectionName);
-                cItem.put(FV_URL, info.protocolType+"://"+info.url);
-
-                connList.add(cItem);
-            }
-        } catch (Exception e) {
-        }
+        getConnectionList();
 
         mAdapter = new SimpleAdapter(
                 getActivity(),
                 connList,
                 R.layout.connection_info_view,
-                new String[] {FV_CONNECTION,
+                new String[] {FV_NAME,
                         FV_URL},
                 new int[] {R.id.fv_textViewConn,
                         R.id.fv_textViewUrl}
@@ -139,9 +129,45 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
             @Override
             public void onClick(View v) {
-                showConnectionSettingDialog();
+                showConnectionSettingDialog(true);
             }
         });
+
+        Button btnEdit = (Button) view.findViewById(R.id.editBtn);
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showConnectionSettingDialog(false);
+            }
+        });
+
+        Button btnDelete = (Button) view.findViewById(R.id.deleteBtn);
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Alert!!");
+                builder.setMessage("Are you sure to delete record");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        deleteConnection(info.connectionName);
+                        getConnectionList();
+                        mListView.clearChoices();
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+
+                builder.create().show();
+            }
+        });
+
 
         return view;
     }
@@ -167,10 +193,10 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+        if (null != mAdapter)
+        {
+            HashMap<String, Object> o = (HashMap<String, Object>) mAdapter.getItem(position);
+            info = (ConnectionInfo) o.get(FV_CONNECTION);
         }
     }
 
@@ -187,32 +213,46 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         }
     }
 
-    private List<ConnectionInfo> getConnectionList()
+    private void getConnectionList()
     {
-        return null;
+        connList.clear();
+        List<ConnectionInfo> list = DBManager.getConnectionList();
+        try {
+            for (int i = 0; i < list.size(); i++) {
+
+                ConnectionInfo info = list.get(i);
+                HashMap<String, Object> cItem = new HashMap<String, Object>();
+
+                cItem.put(FV_NAME, info.connectionName);
+                cItem.put(FV_URL, info.protocolType+"://"+info.url);
+                cItem.put(FV_CONNECTION, info);
+
+                connList.add(cItem);
+            }
+        } catch (Exception e) {
+        }
     }
 
     private boolean saveConnection(ConnectionInfo conn)
     {
-        return true;
+        return DBManager.insertConnection(conn);
     }
 
     private boolean deleteConnection(String connName)
     {
-        return true;
+        return DBManager.deleteConnection(connName);
     }
 
     private boolean updateConnection(ConnectionInfo conn)
     {
-        return true;
+        return DBManager.updateConnection(conn);
     }
 
     private void doConnection(ConnectionInfo conn)
     {
-
     }
 
-    private void showConnectionSettingDialog() {
+    private void showConnectionSettingDialog(final boolean isCreate) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View textEntryView = factory.inflate(R.layout.connection_setting, null);
@@ -227,9 +267,29 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         final EditText url = (EditText) textEntryView.findViewById(R.id.editUrl);
         final EditText id = (EditText) textEntryView.findViewById(R.id.editId);
         final EditText pw = (EditText) textEntryView.findViewById(R.id.editPassword);
-
-
         sp.setAdapter(protocolAdapter);
+        if(isCreate)
+        {
+            name.setEnabled(true);
+            name.setText("");
+            sp.setSelection(0);
+            url.setText("");
+            id.setText("");
+            pw.setText("");
+        }
+        else
+        {
+            name.setEnabled(false);
+
+                if(info != null)
+                {
+                    name.setText(info.connectionName);
+                    sp.setSelection(info.protocol);
+                    url.setText(info.url);
+                    id.setText(info.id);
+                    pw.setText(info.password);
+                }
+        }
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -239,8 +299,21 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
                 info.url = url.getText().toString();
                 info.id = id.getText().toString();
                 info.password = pw.getText().toString();
+                if(isCreate)
+                {
+                    saveConnection(info);
+                    getConnectionList();
+                    mListView.clearChoices();
+                    mAdapter.notifyDataSetChanged();
+                }
+                else
+                {
+                    updateConnection(info);
+                    getConnectionList();
+                    mListView.clearChoices();
+                    mAdapter.notifyDataSetChanged();
+                }
 
-                DBManager.insertConnection(info);
 
             }
         });
