@@ -103,7 +103,7 @@ public class DBManager {
 
     public static List<ConnectionInfo> getConnectionList() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
-
+        List<ConnectionInfo> list = new ArrayList<>();
         Cursor cr = null;
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_ConnectionInfo", null);
@@ -113,13 +113,21 @@ public class DBManager {
         if (cr != null) {
             cr.moveToFirst();
             for (int i = 0; i < cr.getCount(); i++) {
+                ConnectionInfo info = new ConnectionInfo();
+                info.connectionName = cr.getString(0);
+                info.protocol = cr.getInt(1);
+                info.protocolType = ConnectionInfo.ProtocolType.values()[cr.getInt(1)].toString();
+                info.url = cr.getString(2);
+                info.id = cr.getString(3);
+                info.password = cr.getString(4);
+                list.add(info);
                 cr.moveToNext();
             }
             cr.close();
         }
         db.close();
-        List<ConnectionInfo> aa = new ArrayList<>();
-        return aa;
+
+        return list;
     }
 
     public static boolean insertConnection(ConnectionInfo conn) {
@@ -127,6 +135,12 @@ public class DBManager {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
 
         ContentValues ctv = new ContentValues();
+        ctv.put("connectionName", conn.connectionName);
+        ctv.put("protocol", conn.protocol);
+        ctv.put("url", conn.url);
+        ctv.put("id", conn.id);
+        ctv.put("password", conn.password);
+
         try {
             long resLong = db.insert("SOPViewer_ConnectionInfo", "", ctv);
             if (resLong >= 0)
@@ -161,6 +175,10 @@ public class DBManager {
 
         String name = conn.connectionName;
         ContentValues ctv = new ContentValues();
+        ctv.put("protocol", conn.protocol);
+        ctv.put("url", conn.url);
+        ctv.put("id", conn.id);
+        ctv.put("password", conn.password);
         try {
             long resLong = db.update("SOPViewer_ConnectionInfo", ctv, "connectionName=?", new String[]{name});
             if (resLong >= 0)

@@ -6,17 +6,26 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -39,8 +48,11 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     private int mParam1;
     private String mParam2;
 
-    private IFragmentInteraction mListener;
+    private static final String FV_CONNECTION = "connectionName";
+    private static final String FV_URL = "url";
 
+    private IFragmentInteraction mListener;
+    private ArrayList<HashMap<String,Object>> connList = new ArrayList<HashMap<String,Object>>();
     /**
      * The fragment's ListView/GridView.
      */
@@ -79,14 +91,40 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         }
 
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
+        //mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
+        //        android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_connectionmanager, container, false);
+
+        List<ConnectionInfo> list = DBManager.getConnectionList();
+
+        try {
+            for (int i = 0; i < list.size(); i++) {
+
+                ConnectionInfo info = list.get(i);
+                HashMap<String, Object> cItem = new HashMap<String, Object>();
+
+                cItem.put(FV_CONNECTION, info.connectionName);
+                cItem.put(FV_URL, info.protocolType+"://"+info.url);
+
+                connList.add(cItem);
+            }
+        } catch (Exception e) {
+        }
+
+        mAdapter = new SimpleAdapter(
+                getActivity(),
+                connList,
+                R.layout.connection_info_view,
+                new String[] {FV_CONNECTION,
+                        FV_URL},
+                new int[] {R.id.fv_textViewConn,
+                        R.id.fv_textViewUrl}
+        );
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
@@ -95,6 +133,15 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         mListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
+
+        Button btnCreate = (Button) view.findViewById(R.id.createBtn);
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showConnectionSettingDialog();
+            }
+        });
 
         return view;
     }
@@ -163,5 +210,47 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     private void doConnection(ConnectionInfo conn)
     {
 
+    }
+
+    private void showConnectionSettingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View textEntryView = factory.inflate(R.layout.connection_setting, null);
+        builder.setTitle("Connection Setting");
+        builder.setView(textEntryView);
+
+        ArrayAdapter protocolAdapter = new ArrayAdapter<ConnectionInfo.ProtocolType>(getActivity(),
+                android.R.layout.simple_spinner_item, ConnectionInfo.ProtocolType.values());
+
+        final EditText name = (EditText) textEntryView.findViewById(R.id.editConnName);
+        final Spinner sp = (Spinner) textEntryView.findViewById(R.id.spinProtocol);
+        final EditText url = (EditText) textEntryView.findViewById(R.id.editUrl);
+        final EditText id = (EditText) textEntryView.findViewById(R.id.editId);
+        final EditText pw = (EditText) textEntryView.findViewById(R.id.editPassword);
+
+
+        sp.setAdapter(protocolAdapter);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ConnectionInfo info = new ConnectionInfo();
+                info.connectionName = name.getText().toString();
+                info.protocol = ((ConnectionInfo.ProtocolType)sp.getSelectedItem()).toInt();
+                info.url = url.getText().toString();
+                info.id = id.getText().toString();
+                info.password = pw.getText().toString();
+
+                DBManager.insertConnection(info);
+
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.create().show();
     }
 }

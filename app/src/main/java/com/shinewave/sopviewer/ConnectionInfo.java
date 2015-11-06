@@ -9,9 +9,15 @@ import java.util.List;
 public class ConnectionInfo {
     public String connectionName;
     public int protocol;
+    public String protocolType;
     public String url;
     public String id;
     public String password;
+
+    public String toString()
+    {
+        return connectionName;
+    }
 
     public enum ProtocolType {
         FTP(0), SMB(1);
