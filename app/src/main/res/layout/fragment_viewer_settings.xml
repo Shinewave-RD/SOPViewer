@@ -18,7 +18,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="32dp"
                 android:layout_margin="5dp"
-                android:text="Fit Screen" />
+                android:text="Fit Screen"
+                android:checked="true"/>
 
             <RadioButton
                 android:id="@+id/rbFitWidth"

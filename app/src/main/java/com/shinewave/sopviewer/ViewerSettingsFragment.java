@@ -1,13 +1,18 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.app.Fragment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.RadioButton;
 
 
 /**
@@ -29,6 +34,12 @@ public class ViewerSettingsFragment extends Fragment {
     private String mParam2;
 
     private IFragmentInteraction mListener;
+
+    private RadioButton rbFitScreen;
+    private RadioButton rbFitWidth;
+    private RadioButton rbFitHeight;
+    private CheckBox cbVerticalAutoScroll;
+    private CheckBox cbHorizontalAutoScroll;
 
     /**
      * Use this factory method to create a new instance of
@@ -65,7 +76,87 @@ public class ViewerSettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_viewer_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_viewer_settings, container, false);
+        rbFitScreen = (RadioButton) view.findViewById(R.id.rbFitScreen);
+        rbFitWidth = (RadioButton) view.findViewById(R.id.rbFitWidth);
+        rbFitHeight = (RadioButton) view.findViewById(R.id.rbFitHeight);
+        cbVerticalAutoScroll = (CheckBox) view.findViewById(R.id.cbVerticalAutoScroll);
+        cbHorizontalAutoScroll = (CheckBox) view.findViewById(R.id.cbHorizontalAutoScroll);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int value = sharedPreferences.getInt("ViewerSetting", 1);
+        if(value == 1)
+        {
+            rbFitScreen.setChecked(true);
+            cbVerticalAutoScroll.setChecked(sharedPreferences.getBoolean("VerticalAutoScroll",false));
+            cbHorizontalAutoScroll.setChecked(sharedPreferences.getBoolean("HorizontalAutoScroll",false));
+        }
+        else if(value == 2)
+        {
+            rbFitWidth.setChecked(true);
+            cbVerticalAutoScroll.setChecked(false);
+            cbHorizontalAutoScroll.setChecked(sharedPreferences.getBoolean("HorizontalAutoScroll",false));
+        }
+        else if(value == 3)
+        {
+            rbFitHeight.setChecked(true);
+            cbHorizontalAutoScroll.setChecked(false);
+            cbVerticalAutoScroll.setChecked(sharedPreferences.getBoolean("VerticalAutoScroll",false));
+        }
+        else if(value == 4)
+        {
+            rbFitWidth.setChecked(true);
+            cbVerticalAutoScroll.setChecked(true);
+            cbHorizontalAutoScroll.setChecked(sharedPreferences.getBoolean("HorizontalAutoScroll",false));
+        }
+        else if(value == 5)
+        {
+            rbFitHeight.setChecked(true);
+            cbHorizontalAutoScroll.setChecked(true);
+            cbVerticalAutoScroll.setChecked(sharedPreferences.getBoolean("VerticalAutoScroll",false));
+        }
+
+        rbFitScreen.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                checkSelected();
+            }
+        });
+
+        rbFitWidth.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                checkSelected();
+            }
+        });
+
+        rbFitHeight.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                checkSelected();
+            }
+        });
+
+        cbVerticalAutoScroll.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                checkSelected();
+            }
+        });
+
+        cbHorizontalAutoScroll.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                checkSelected();
+            }
+        });
+
+        return view;
     }
 
     @Override
@@ -87,5 +178,30 @@ public class ViewerSettingsFragment extends Fragment {
         mListener = null;
     }
 
+    public void checkSelected()
+    {
+        int value = 1;
+        boolean fitScreen = rbFitScreen.isChecked();
+        boolean fitWidth = rbFitWidth.isChecked();
+        boolean fitHeight = rbFitHeight.isChecked();
+        boolean verticalAutoScroll = cbVerticalAutoScroll.isChecked();
+        boolean horizontalAutoScroll = cbHorizontalAutoScroll.isChecked();
+        if(fitScreen)                               //FitScreen = true
+            value = 1;
+        else if(fitWidth && !verticalAutoScroll)    //FitWidth = true & VerticalAutoScroll = false
+            value = 2;
+        else if(fitWidth && verticalAutoScroll)     //FitWidth = true & VerticalAutoScroll = true
+            value = 4;
+        else if(fitHeight && !horizontalAutoScroll) //FitHeight = true & HorizontalAutoScroll = false
+            value = 3;
+        else if(fitHeight && horizontalAutoScroll)  //FitHeight = true & HorizontalAutoScroll = true
+            value = 5;
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putInt("ViewerSetting", value);
+        edit.putBoolean("VerticalAutoScroll", verticalAutoScroll);
+        edit.putBoolean("HorizontalAutoScroll", horizontalAutoScroll);
+        edit.commit();
+    }
 }
