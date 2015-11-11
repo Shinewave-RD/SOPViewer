@@ -178,7 +178,7 @@ public class ViewerSettingsFragment extends Fragment {
         mListener = null;
     }
 
-    public void checkSelected()
+    private void checkSelected()
     {
         int value = 1;
         boolean fitScreen = rbFitScreen.isChecked();
