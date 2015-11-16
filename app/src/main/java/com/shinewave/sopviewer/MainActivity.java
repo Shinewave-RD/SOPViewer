@@ -1,6 +1,7 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -45,6 +46,11 @@ public class MainActivity extends AppCompatActivity
         } catch (IOException e) {
             //
         }
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll()
+                .build();
+        StrictMode.setThreadPolicy(policy);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);

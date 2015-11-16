@@ -28,6 +28,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPFile;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbFile;
+
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -51,7 +56,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     private static final String FV_NAME= "connectionName";
     private static final String FV_URL = "url";
     private static final String FV_CONNECTION = "fileObject";
-
+    private static final int CONNECT_OVERTIME = 5;
 
     private IFragmentInteraction mListener;
     private ArrayList<HashMap<String,Object>> connList = new ArrayList<HashMap<String,Object>>();
@@ -168,6 +173,14 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
             }
         });
 
+        Button btnConnect = (Button) view.findViewById(R.id.connectBtn);
+        btnConnect.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                doConnection(info);
+            }
+        });
 
         return view;
     }
@@ -250,6 +263,43 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
     private void doConnection(ConnectionInfo conn)
     {
+        if(conn != null)
+        {
+            if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
+            {
+                try {
+                    FTPClient ftpClient = new FTPClient();
+                    ftpClient.getConnector().setConnectionTimeout(CONNECT_OVERTIME);
+                    ftpClient.connect(conn.url);
+                    ftpClient.login(conn.id, conn.password);
+                    ftpClient.changeDirectory("/");
+                    FTPFile[] ftpFiles = ftpClient.list();
+                    if (ftpFiles != null) {
+                        System.out.println(ftpFiles.length);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Log.e("doConnection", e.toString());
+                }
+            }
+            else if(ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
+            {
+                try {
+                    NtlmPasswordAuthentication authentication = new NtlmPasswordAuthentication("", conn.id, conn.password); // domain, user, password
+                    SmbFile currentFolder = new SmbFile("smb://" + conn.url, authentication);
+                    SmbFile[] listFiles = currentFolder.listFiles();
+                    if (listFiles != null) {
+                        System.out.println(listFiles.length);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Log.e("doConnection", e.toString());
+                }
+
+            }
+        }
     }
 
     private void showConnectionSettingDialog(final boolean isCreate) {
