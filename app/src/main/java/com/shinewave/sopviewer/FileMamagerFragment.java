@@ -1,6 +1,7 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.app.Fragment;
@@ -50,6 +51,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String FV_CONNECTION = "connection_name";
     private static final String FV_UPDATE_DT = "last_update_time";
     private static final String FV_File = "fileObject";
+    private static final String FV_SyncBtn = "sync";
+    private static final String FV_DelBtn = "delete";
+    private HashMap<String, Object> fItem;
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
@@ -64,7 +68,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private SimpleAdapter mAdapter;
+    private FlieAdapte mAdapter;
     private ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
 
     // TODO: Rename and change types of parameters
@@ -87,7 +91,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Context context = getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -100,18 +104,22 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         */
         setupFileList(list, null);
 
-        mAdapter = new SimpleAdapter(
+        mAdapter = new FlieAdapte(
                 getActivity(),
                 list,
                 R.layout.file_info_view,
                 new String[] {FV_IMAGE,
                         FV_FILE_NAME,
                         FV_CONNECTION,
-                        FV_UPDATE_DT},
+                        FV_UPDATE_DT,
+                        FV_SyncBtn,
+                        FV_DelBtn},
                 new int[] {R.id.fv_imageView,
                         R.id.fv_textViewFile,
                         R.id.fv_textViewConn,
-                        R.id.fv_textViewLastestDT}
+                        R.id.fv_textViewLastestDT,
+                        R.id.ItemButton_Sync,
+                        R.id.ItemButton_Del}
         );
     }
 
@@ -208,6 +216,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             fItem.put(FV_FILE_NAME,"BACK");
             fItem.put(FV_CONNECTION, "");
             fItem.put(FV_UPDATE_DT,"");
+            fItem.put(FV_SyncBtn,"");
+            fItem.put(FV_DelBtn,"");
             fItem.put(FV_File,new File(path).getParentFile());
 
             list.add(fItem);
@@ -234,6 +244,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 fItem.put(FV_CONNECTION, getString(R.string.label_source) + "Local");
                 fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
                         sdf.format(new Date(f1.lastModified())));
+                fItem.put(FV_SyncBtn,"Sync");
+                fItem.put(FV_DelBtn,"Delete");
                 fItem.put(FV_File, f1);
 
                 list.add(fItem);
