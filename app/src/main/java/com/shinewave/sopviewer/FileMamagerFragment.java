@@ -1,6 +1,7 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.os.Environment;
@@ -165,6 +166,13 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                     mListView.clearChoices();
 
                     mAdapter.notifyDataSetChanged();
+                }
+                else //James-測試用
+                {
+                    Intent intent = new Intent(getActivity(),
+                            PDFPlayActivity.class);
+                    intent.putExtra("FileName", sf.getAbsolutePath());
+                    startActivity(intent);
                 }
             } catch (ClassCastException ec) {
                 //normal case

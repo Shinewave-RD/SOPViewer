@@ -26,4 +26,7 @@
     <string name="enter_password">Enter password</string>
     <string name="label_source">Source:</string>
     <string name="label_last_update">Last update:</string>
+    <string name="title_activity_pdfplay">PDFPlayActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>
