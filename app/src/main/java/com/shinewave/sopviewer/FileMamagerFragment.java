@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -53,8 +54,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String FV_File = "fileObject";
     private static final String FV_SyncBtn = "sync";
     private static final String FV_DelBtn = "delete";
-    private HashMap<String, Object> fItem;
 
+    private List<FileInfo> FileInfolist;
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private IFragmentInteraction mListener;
@@ -102,7 +103,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
                 android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
         */
-        setupFileList(list, null);
+        getFileList();
+        setupFileList(list, FileInfolist, null);
 
         mAdapter = new FlieAdapte(
                 getActivity(),
@@ -169,7 +171,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
                 File sf = (File) o.get(FV_File);
                 if (sf.isDirectory()) {
-                    setupFileList(list, sf.getAbsolutePath());
+                    setupFileList(list, FileInfolist, sf.getAbsolutePath());
 
                     mListView.clearChoices();
 
@@ -202,7 +204,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
     }
 
-    private void setupFileList(ArrayList<HashMap<String,Object>> list, String path) {
+    private void setupFileList(ArrayList<HashMap<String,Object>> list, List<FileInfo> fInfo, String path) {
         //clear before setup
         list.clear();
 
@@ -235,15 +237,27 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             for (int i = 0; i < file.length; i++) {
                 Log.d(TAG, "FileName:" + file[i].getName());
                 File f1 = file[i];
-                if (!f1.canRead())
+                if (!f1.canRead() || (!f1.isDirectory() && !f1.getName().toLowerCase().endsWith("pdf")))
                     continue;
                 fItem = new HashMap<String, Object>();
 
+                FileInfo fTmp = new FileInfo();
+                fTmp.localFullFilePath = f1.getAbsolutePath();
+                if(fInfo!=null && fInfo.contains(fTmp))
+                {
+                    int fIndex = fInfo.indexOf(fTmp);
+                    FileInfo info = fInfo.get(fIndex);
+                    fItem.put(FV_CONNECTION, getString(R.string.label_source) + info.connectionName);
+                    fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
+                            sdf.format(info.updateTime));
+                } else {
+                    fItem.put(FV_CONNECTION, getString(R.string.label_source) + "Local");
+                    fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
+                            sdf.format(new Date(f1.lastModified())));
+                }
+
                 fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
                 fItem.put(FV_FILE_NAME, f1.getName());
-                fItem.put(FV_CONNECTION, getString(R.string.label_source) + "Local");
-                fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
-                        sdf.format(new Date(f1.lastModified())));
                 fItem.put(FV_SyncBtn,"Sync");
                 fItem.put(FV_DelBtn,"Delete");
                 fItem.put(FV_File, f1);
@@ -255,4 +269,20 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
     }
 
+    private void getFileList() { FileInfolist = DBManager.getFileInfo(); }
+
+    private boolean saveFileInfo(ConnectionInfo conn)
+    {
+        return DBManager.insertConnection(conn);
+    }
+
+    private boolean deleteFileInfo(String connName)
+    {
+        return DBManager.deleteConnection(connName);
+    }
+
+    private boolean updateFileInfo(ConnectionInfo conn)
+    {
+        return DBManager.updateConnection(conn);
+    }
 }

@@ -57,30 +57,6 @@
                     android:layout_weight="1">
 
                     <Button
-                        android:id="@+id/editBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Delete" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1">
-
-                    <Button
-                        android:id="@+id/deleteBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sync" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1">
-
-                    <Button
                         android:id="@+id/connectBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
