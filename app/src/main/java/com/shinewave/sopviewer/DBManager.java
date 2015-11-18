@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,8 @@ public class DBManager {
 
     public static List<FileInfo> getFileInfo() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
-
+        List<FileInfo> list = new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Cursor cr = null;
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_FileInfo", null);
@@ -30,13 +33,25 @@ public class DBManager {
         if (cr != null) {
             cr.moveToFirst();
             for (int i = 0; i < cr.getCount(); i++) {
-                cr.moveToNext();
+                try {
+                    FileInfo info = new FileInfo();
+                    info.localFullFilePath = cr.getString(0);
+                    info.remoteFullFilePath = cr.getString(1);
+                    info.connectionName = cr.getString(2);
+                    info.updateTime = format.parse(cr.getString(3));
+                    info.size = cr.getInt(4);
+                    info.remoteTimeStamp = format.parse(cr.getString(5));
+                    list.add(info);
+                    cr.moveToNext();
+                } catch (ParseException e) {
+                    //
+                }
             }
             cr.close();
         }
         db.close();
-        List<FileInfo> aa = new ArrayList<>();
-        return aa;
+
+        return list;
     }
 
     public static boolean insertFileInfo(FileInfo info) {
@@ -193,23 +208,52 @@ public class DBManager {
 
     public static List<PlayList> getPlayList() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
-
+        List<PlayList> list = new ArrayList<>();
+        PlayList info = new PlayList();
+        PlayListItem item = new PlayListItem();
         Cursor cr = null;
         try {
-            cr = db.rawQuery("SELECT * FROM SOPViewer_PlayList", null);
+            cr = db.rawQuery("SELECT * FROM SOPViewer_PlayList ORDER BY playListName", null);
         } catch (Exception e) {
             //
         }
         if (cr != null) {
             cr.moveToFirst();
+            String tmpName = "";
+            int guard = 0;
             for (int i = 0; i < cr.getCount(); i++) {
-                cr.moveToNext();
+                try {
+                    guard++;
+                    if (!tmpName.equals(cr.getString(0))) {
+                        if (guard > 1)
+                            list.add(info);
+                        info = new PlayList();
+                        info.playListName = cr.getString(0);
+                        info.loop = cr.getInt(1);
+                        item.seq = cr.getInt(2);
+                        item.localFullFilePath = cr.getString(3);
+                        item.strPages = cr.getString(4);
+                        item.sec = cr.getInt(5);
+                        info.playListItem.add(item);
+                        tmpName = info.playListName;
+
+                    } else {
+                        item.seq = cr.getInt(2);
+                        item.localFullFilePath = cr.getString(3);
+                        item.strPages = cr.getString(4);
+                        item.sec = cr.getInt(5);
+                        info.playListItem.add(item);
+                    }
+                    cr.moveToNext();
+                } catch (Exception e) {
+                    //
+                }
             }
             cr.close();
         }
         db.close();
-        List<PlayList> aa = new ArrayList<>();
-        return aa;
+
+        return list;
     }
 
     public static boolean insertPlayList(PlayList pList) {
@@ -217,12 +261,20 @@ public class DBManager {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
 
         ContentValues ctv = new ContentValues();
-        try {
-            long resLong = db.insert("SOPViewer_PlayList", "", ctv);
-            if (resLong >= 0)
-                res = true;
-        } catch (Exception e) {
-            //
+        for (PlayListItem item : pList.playListItem) {
+            ctv.put("playListName", pList.playListName);
+            ctv.put("loop", pList.loop);
+            ctv.put("seq", item.seq);
+            ctv.put("localFullFilePath", item.localFullFilePath);
+            ctv.put("strPages", item.strPages);
+            ctv.put("sec", item.sec);
+            try {
+                long resLong = db.insert("SOPViewer_PlayList", "", ctv);
+                if (resLong >= 0)
+                    res = true;
+            } catch (Exception e) {
+                //
+            }
         }
         db.close();
         return res;
@@ -245,7 +297,7 @@ public class DBManager {
     }
 
     public static boolean updatePlayList(PlayList pList) {
-
+        //每次update都先delete再insert，所以暫時用不到。
         boolean res = false;
         SQLiteDatabase db = sopDBAccess.getWritableDatabase();
 
