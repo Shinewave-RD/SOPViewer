@@ -5,6 +5,7 @@
     <string name="nav_2_connetion_manager">Connection Manager</string>
     <string name="nav_3_playlist">Playlist</string>
     <string name="nav_4_settings">Viewer Settings</string>
+    <string name="nav_5_remote_file_manager">Remote File Manager</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

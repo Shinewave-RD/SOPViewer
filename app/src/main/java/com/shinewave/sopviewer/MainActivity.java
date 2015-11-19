@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity
      */
     private CharSequence mTitle;
 
+    private String id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +81,9 @@ public class MainActivity extends AppCompatActivity
             case 4:
                 fragment = ViewerSettingsFragment.newInstance(position + 1, "");
                 break;
+            case 5:
+                fragment = RemoteFileManagerFragment.newInstance(position + 1, id);
+                break;
         }
         fragmentManager.beginTransaction()
                 .replace(R.id.container, fragment)
@@ -101,6 +106,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case 4:
                 mTitle = getString(R.string.nav_4_settings);
+                break;
+            case 5:
+                mTitle = getString(R.string.nav_5_remote_file_manager);
                 break;
         }
     }
@@ -143,7 +151,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(String id) {
-
+        this.id = id;
     }
 
     /**

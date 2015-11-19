@@ -265,6 +265,10 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     {
         if(conn != null)
         {
+            MainActivity ma = (MainActivity)getActivity();
+            ma.onFragmentInteraction(conn.connectionName);
+            ma.onNavigationDrawerItemSelected(4);
+
             if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
             {
                 try {

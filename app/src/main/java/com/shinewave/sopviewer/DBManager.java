@@ -116,6 +116,31 @@ public class DBManager {
         return res;
     }
 
+    public static ConnectionInfo getConnection(String connName) {
+        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        ConnectionInfo info = null;
+        Cursor cr = null;
+        try {
+            cr = db.rawQuery("SELECT * FROM SOPViewer_ConnectionInfo where connectionName=" + connName, null);
+        } catch (Exception e) {
+            //
+        }
+        if (cr != null) {
+            cr.moveToFirst();
+            info = new ConnectionInfo();
+            info.connectionName = cr.getString(0);
+            info.protocol = cr.getInt(1);
+            info.protocolType = ConnectionInfo.ProtocolType.values()[cr.getInt(1)].toString();
+            info.url = cr.getString(2);
+            info.id = cr.getString(3);
+            info.password = cr.getString(4);
+            cr.close();
+        }
+        db.close();
+
+        return info;
+    }
+
     public static List<ConnectionInfo> getConnectionList() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
         List<ConnectionInfo> list = new ArrayList<>();

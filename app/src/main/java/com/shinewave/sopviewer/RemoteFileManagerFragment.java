@@ -26,6 +26,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
+import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPFile;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbFile;
 
 /**
  * A fragment representing a list of Items.
@@ -33,12 +39,12 @@ import java.util.List;
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
  * <p/>
- * Activities containing this fragment MUST implement the {@link IFragmentInteraction}
+ * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class FileMamagerFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class RemoteFileManagerFragment extends Fragment implements AbsListView.OnItemClickListener {
 
-    private static final String TAG = "FileMamagerFragment";
+    private static final String TAG = "RemoteFileMamagerFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -55,7 +61,6 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String FV_SyncBtn = "sync";
     private static final String FV_DelBtn = "delete";
 
-    private List<FileInfo> FileInfolist;
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private IFragmentInteraction mListener;
@@ -65,6 +70,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
      */
     private AbsListView mListView;
 
+    private ConnectionInfo info;
+    private String tmpPath = "/";
+
     /**
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
@@ -73,8 +81,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
 
     // TODO: Rename and change types of parameters
-    public static FileMamagerFragment newInstance(int param1, String param2) {
-        FileMamagerFragment fragment = new FileMamagerFragment();
+    public static RemoteFileManagerFragment newInstance(int param1, String param2) {
+        RemoteFileManagerFragment fragment = new RemoteFileManagerFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -86,7 +94,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public FileMamagerFragment() {
+    public RemoteFileManagerFragment() {
     }
 
     @Override
@@ -98,13 +106,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        // TODO: Change Adapter to display your content
-        /*
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_activated_1, DummyContent.ITEMS);
-        */
-        getFileList();
-        setupFileList(list, FileInfolist, null);
+        info = DBManager.getConnection(mParam2);
+
+        setupFileList(list, info, tmpPath);
 
         mAdapter = new FlieAdapte(
                 getActivity(),
@@ -123,12 +127,14 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         R.id.ItemButton_Sync,
                         R.id.ItemButton_Del}
         );
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_filemamager, container, false);
+        View view = inflater.inflate(R.layout.fragment_remotefilemanager, container, false);
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
@@ -148,6 +154,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             mListener = (IFragmentInteraction) activity;
             ((MainActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_PARAM1));
+            ((MainActivity) activity).restoreActionBar();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -169,12 +176,18 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             try
             {
                 HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
-                File sf = (File) o.get(FV_File);
-                if (sf.isDirectory()) {
-                    setupFileList(list, FileInfolist, sf.getAbsolutePath());
-
+                FTPFile sf = (FTPFile) o.get(FV_File);
+                if (sf.getType() == FTPFile.TYPE_DIRECTORY) {
+                    String newTmpPath = tmpPath + sf.getName() + "/";
+                    setupFileList(list, info, newTmpPath);
                     mListView.clearChoices();
-
+                    mAdapter.notifyDataSetChanged();
+                }
+                else if(sf.getType() == FTPFile.TYPE_LINK)
+                {
+                    String newTmpPath = sf.getName();
+                    setupFileList(list, info, newTmpPath);
+                    mListView.clearChoices();
                     mAdapter.notifyDataSetChanged();
                 }
             } catch (ClassCastException ec) {
@@ -197,85 +210,92 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
     }
 
-    private void setupFileList(ArrayList<HashMap<String,Object>> list, List<FileInfo> fInfo, String path) {
-        //clear before setup
+
+    private void setupFileList(ArrayList<HashMap<String,Object>> list, ConnectionInfo conn, String path) {
         list.clear();
-
         HashMap<String, Object> fItem = null;
-
-        if ((null != path) && !path.isEmpty()
-                && !path.equalsIgnoreCase(Environment.getExternalStorageDirectory().toString())) {
-            //use the provided path
-            fItem = new HashMap<String, Object>();
-            fItem.put(FV_IMAGE,R.drawable.forder_back);
-            fItem.put(FV_FILE_NAME,"BACK");
-            fItem.put(FV_CONNECTION, "");
-            fItem.put(FV_UPDATE_DT,"");
-            fItem.put(FV_SyncBtn,"");
-            fItem.put(FV_DelBtn,"");
-            fItem.put(FV_File,new File(path).getParentFile());
-
-            list.add(fItem);
-        } else {
-            path = Environment.getExternalStorageDirectory().toString();
-        }
-
-        //query localfile
-        try {
-            Log.d(TAG, "Path: " + path);
-            File f = new File(path);
-            File file[] = f.listFiles();
-            Log.d(TAG, "Size: " + file.length);
-
-            for (int i = 0; i < file.length; i++) {
-                Log.d(TAG, "FileName:" + file[i].getName());
-                File f1 = file[i];
-                if (!f1.canRead() || (!f1.isDirectory() && !f1.getName().toLowerCase().endsWith("pdf")))
-                    continue;
+        if(conn != null) {
+            if ((null != path) && !path.isEmpty()
+                    && !path.equalsIgnoreCase("/")) {
+                //use the provided path
                 fItem = new HashMap<String, Object>();
-
-                FileInfo fTmp = new FileInfo();
-                fTmp.localFullFilePath = f1.getAbsolutePath();
-                if(fInfo!=null && fInfo.contains(fTmp))
+                fItem.put(FV_IMAGE,R.drawable.forder_back);
+                fItem.put(FV_FILE_NAME,"BACK");
+                fItem.put(FV_CONNECTION, "");
+                fItem.put(FV_UPDATE_DT,"");
+                fItem.put(FV_SyncBtn,"");
+                fItem.put(FV_DelBtn, "");
+                FTPFile f = new FTPFile();
+                String[] strs = path.split("/");
+                if (strs.length >= 2) {
+                    String backPath = "/";
+                    for (int i = 0; i < strs.length - 1; ++i) {
+                        if (!strs[i].equals("") && strs[i] != null)
+                            backPath = backPath + strs[i] + "/";
+                    }
+                    f.setName(backPath);
+                }
+                else
                 {
-                    int fIndex = fInfo.indexOf(fTmp);
-                    FileInfo info = fInfo.get(fIndex);
-                    fItem.put(FV_CONNECTION, getString(R.string.label_source) + info.connectionName);
-                    fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
-                            sdf.format(info.updateTime));
-                } else {
-                    fItem.put(FV_CONNECTION, getString(R.string.label_source) + "Local");
-                    fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
-                            sdf.format(new Date(f1.lastModified())));
+                    f.setName("/");
                 }
 
-                fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
-                fItem.put(FV_FILE_NAME, f1.getName());
-                fItem.put(FV_SyncBtn,"Sync");
-                fItem.put(FV_DelBtn,"Delete");
-                fItem.put(FV_File, f1);
+                f.setType(FTPFile.TYPE_LINK);
+                fItem.put(FV_File, f);
 
                 list.add(fItem);
             }
-        } catch (Exception e) {
-            Log.w(TAG,e.getMessage());
+
+
+
+            if (ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType))) {
+                try {
+                    FTPClient ftpClient = new FTPClient();
+                    ftpClient.getConnector().setConnectionTimeout(5);
+                    ftpClient.connect(conn.url);
+                    ftpClient.login(conn.id, conn.password);
+                    ftpClient.changeDirectory(path);
+                    FTPFile[] ftpFiles = ftpClient.list();
+                    if (ftpFiles != null) {
+                        int ftpFileCount = ftpFiles.length;
+                        for (int ftpFileIndex = 0; ftpFileIndex < ftpFileCount; ++ftpFileIndex) {
+                            FTPFile ftpFile = ftpFiles[ftpFileIndex];
+                            Log.d(TAG, "FileName:" + ftpFile.getName());
+
+                            int type = ftpFile.getType();
+                            Log.d(TAG, "Type:" + type + "," + ftpFile.getName().toLowerCase(Locale.getDefault()).endsWith("pdf"));
+                            if (type == FTPFile.TYPE_DIRECTORY || (type == FTPFile.TYPE_FILE && ftpFile.getName().toLowerCase(Locale.getDefault()).endsWith("pdf"))) {
+                                fItem = new HashMap<String, Object>();
+                                fItem.put(FV_CONNECTION, getString(R.string.label_source) + info.connectionName);
+                                fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) + sdf.format(ftpFile.getModifiedDate()));
+                                fItem.put(FV_IMAGE, type == FTPFile.TYPE_DIRECTORY ? R.drawable.folder_pdf : R.drawable.pdf);
+                                fItem.put(FV_FILE_NAME, ftpFile.getName());
+                                fItem.put(FV_File, ftpFile);
+
+                                list.add(fItem);
+                            }
+                        }
+                    }
+                    ftpClient.disconnect(true);
+                } catch (Exception e) {
+                    Log.e("doConnection", e.toString());
+                }
+
+            } else if (ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType))) {
+                try {
+                    NtlmPasswordAuthentication authentication = new NtlmPasswordAuthentication("", conn.id, conn.password); // domain, user, password
+                    SmbFile currentFolder = new SmbFile("smb://" + conn.url, authentication);
+                    SmbFile[] listFiles = currentFolder.listFiles();
+                    if (listFiles != null) {
+                        System.out.println(listFiles.length);
+                    }
+                } catch (Exception e) {
+                    Log.e("doConnection", e.toString());
+                }
+
+            }
+
+            tmpPath = path;
         }
-    }
-
-    private void getFileList() { FileInfolist = DBManager.getFileInfo(); }
-
-    private boolean saveFileInfo(ConnectionInfo conn)
-    {
-        return DBManager.insertConnection(conn);
-    }
-
-    private boolean deleteFileInfo(String connName)
-    {
-        return DBManager.deleteConnection(connName);
-    }
-
-    private boolean updateFileInfo(ConnectionInfo conn)
-    {
-        return DBManager.updateConnection(conn);
     }
 }
