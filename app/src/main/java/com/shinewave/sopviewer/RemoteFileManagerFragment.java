@@ -1,7 +1,9 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.app.Fragment;
@@ -18,6 +20,7 @@ import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.artifex.mupdfdemo.AsyncTask;
 import com.shinewave.sopviewer.dummy.DummyContent;
 
 import java.io.File;
@@ -164,7 +167,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
             try
             {
                 HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
-                FTPFile sf = (FTPFile) o.get(FV_File);
+                final FTPFile sf = (FTPFile) o.get(FV_File);
                 if (sf.getType() == FTPFile.TYPE_DIRECTORY) {
                     String newTmpPath = tmpPath + sf.getName() + "/";
                     setupFileList(list, info, newTmpPath);
@@ -180,7 +183,30 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 }
                 else if(sf.getType() == FTPFile.TYPE_FILE)
                 {
+                    File file = new File(Environment.getExternalStorageDirectory()
+                            + File.separator + sf.getName());
+                    if (!file.exists()) {
+                        new DownloadFile().execute(sf);
+                    }
+                    else
+                    {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Alert!!");
+                        builder.setMessage("File exist !! Are you sure to overwrite?");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                new DownloadFile().execute(sf);
+                            }
+                        });
 
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                            }
+                        });
+
+                        builder.create().show();
+                    }
                 }
             } catch (ClassCastException ec) {
                 //normal case
@@ -332,5 +358,64 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
 
         return collator.compare(((CollationKey) c1).getSourceString(),
                 ((CollationKey) c2).getSourceString());
+    }
+
+
+
+    private class DownloadFile extends AsyncTask<FTPFile, Integer, File> {
+        private FTPClient ftpClient;
+        private FTPFile ftpFile;
+
+        @Override
+        protected File doInBackground(FTPFile... params) {
+            try {
+                ftpFile = params[0];
+                ftpClient = new FTPClient();
+                ftpClient.connect(info.url);
+                ftpClient.login(info.id, info.password);
+                ftpClient.changeDirectory(tmpPath);
+                File file = new File(Environment.getExternalStorageDirectory()
+                        + File.separator + ftpFile.getName());
+                //if (!file.exists()) {
+                    ftpClient.download(ftpFile.getName(), file);
+                //}
+                if (ftpClient != null)
+                    ftpClient.disconnect(true);
+
+                return file;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(File result)
+        {
+            super.onPostExecute(result);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Download Finish.");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            builder.create().show();
+
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.localFullFilePath = result.getAbsolutePath();
+            fileInfo.remoteFullFilePath = tmpPath + result.getName();
+            fileInfo.connectionName = info.connectionName;
+            fileInfo.updateTime = new Date(System.currentTimeMillis());
+            fileInfo.syncSucceed = true;
+            fileInfo.size = (int)result.length();
+            fileInfo.remoteTimeStamp = ftpFile.getModifiedDate();
+
+            FileInfo tmp = DBManager.getSingleFileInfo(fileInfo.localFullFilePath);
+            if(tmp != null && tmp.localFullFilePath != null)
+                DBManager.updateFileInfo(fileInfo);
+            else
+                DBManager.insertFileInfo(fileInfo);
+        }
+
     }
 }
