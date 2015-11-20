@@ -4,9 +4,13 @@ package com.shinewave.sopviewer;
  * Created by user on 2015/11/16.
  */
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class FlieAdapte extends BaseAdapter {
     private ArrayList<HashMap<String, Object>> mAppList;
@@ -26,6 +31,7 @@ public class FlieAdapte extends BaseAdapter {
     private int resource;
 
     private ItemView itemView;
+    private int nowPosition;
 
     private boolean fromRemote = false;
 
@@ -43,7 +49,7 @@ public class FlieAdapte extends BaseAdapter {
         mContext = c;
         this.fromRemote = fromRemote;
         this.resource = resource;
-        mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         keyString = new String[from.length];
         valueViewID = new int[to.length];
         System.arraycopy(from, 0, keyString, 0, from.length);
@@ -81,14 +87,12 @@ public class FlieAdapte extends BaseAdapter {
         } else {
             convertView = mInflater.inflate(resource, null);
             itemView = new ItemView();
-            if(fromRemote)
-            {
+            if (fromRemote) {
                 itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
                 itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
                 itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
-                itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);;
-            }
-            else {
+                itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
+            } else {
                 itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
                 itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
                 itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
@@ -102,7 +106,7 @@ public class FlieAdapte extends BaseAdapter {
         HashMap<String, Object> appInfo = mAppList.get(position);
         if (appInfo != null) {
 
-            int mid = (Integer)appInfo.get(keyString[0]);
+            int mid = (Integer) appInfo.get(keyString[0]);
             String name = (String) appInfo.get(keyString[1]);
             String info = (String) appInfo.get(keyString[2]);
             String infoDT = (String) appInfo.get(keyString[3]);
@@ -113,7 +117,7 @@ public class FlieAdapte extends BaseAdapter {
             //itemView.File = (File) appInfo.get(keyString[6]);
             itemView.FV_IMG.setImageDrawable(itemView.FV_IMG.getResources().getDrawable(mid));
             //itemView.viewBtn.setBackgroundDrawable(itemView.ItemButton.getResources().getDrawable(bid));
-            if(!fromRemote) {
+            if (!fromRemote) {
                 if (name != "BACK") {
                     itemView.viewBtn_Sync.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Del.setVisibility(View.VISIBLE);
@@ -138,9 +142,8 @@ public class FlieAdapte extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            int vid=v.getId();
-            if (vid == itemView.viewBtn_Sync.getId())
-                Log.v("ola_log",String.valueOf(position) );
+            nowPosition = position;
+            showSyncMessageDialog();
         }
     }
 
@@ -153,10 +156,100 @@ public class FlieAdapte extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            int vid=v.getId();
-            if (vid == itemView.viewBtn_Del.getId())
-                Log.v("ola_log",String.valueOf(position) );
+            nowPosition = position;
+            showDeleteMessageDialog();
         }
+    }
+
+    private boolean doDeleteRecur(File dir) {
+        try {
+            if (dir.isDirectory()) {
+                for (File f : dir.listFiles()) {
+                    if (f.isDirectory()) {
+                        doDeleteRecur(f);
+                    } else {
+                        if (!f.delete())
+                            break;
+                    }
+                }
+            }
+            return dir.delete();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void showDeleteMessageDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        LayoutInflater factory = LayoutInflater.from(mContext);
+        final View textEntryView = factory.inflate(R.layout.message_dialog, null);
+        builder.setTitle("Warning");
+        builder.setView(textEntryView);
+
+        final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
+        msg.setText("若為資料夾會刪除資料夾內所有檔案，確定要刪除?");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                HashMap<String, Object> appInfo = mAppList.get(nowPosition);
+                String path = FileMamagerFragment.nowPath + File.separator + appInfo.get(keyString[1]);
+
+                File dir = new File(path);
+                boolean success = doDeleteRecur(dir);
+                if (success) {
+                    FileMamagerFragment.deleteFileInfo(path);
+                    FileMamagerFragment.resetListViewData();
+                    notifyDataSetChanged();
+                    Toast.makeText(mContext, "刪除成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mContext, "刪除失敗", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private void showSyncMessageDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        LayoutInflater factory = LayoutInflater.from(mContext);
+        final View textEntryView = factory.inflate(R.layout.message_dialog, null);
+        builder.setTitle("Warning");
+        builder.setView(textEntryView);
+
+        final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
+        msg.setText("確定要同步?");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                HashMap<String, Object> appInfo = mAppList.get(nowPosition);
+                String path = FileMamagerFragment.nowPath + File.separator + appInfo.get(keyString[1]);
+                String failName = FileMamagerFragment.doSyncAll(path);
+                if (failName.equals("")) {
+                    FileMamagerFragment.resetListViewData();
+                    notifyDataSetChanged();
+                    Toast.makeText(mContext, "同步成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mContext, "同步失敗:" + failName, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.create().show();
     }
 }
 

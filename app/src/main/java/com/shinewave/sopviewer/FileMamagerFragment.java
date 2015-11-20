@@ -1,7 +1,9 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.app.Fragment;
@@ -14,9 +16,12 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
 
@@ -55,7 +60,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String FV_SyncBtn = "sync";
     private static final String FV_DelBtn = "delete";
 
-    private List<FileInfo> FileInfolist;
+    public static String nowPath;
+    public static List<FileInfo> FileInfolist;
+    private static Context ctext;
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private IFragmentInteraction mListener;
@@ -70,7 +77,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
      * Views.
      */
     private FlieAdapte mAdapter;
-    private ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
+    private static ArrayList<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
 
     // TODO: Rename and change types of parameters
     public static FileMamagerFragment newInstance(int param1, String param2) {
@@ -92,7 +99,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Context context = getActivity();
+        ctext = getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -110,13 +117,13 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 getActivity(),
                 list,
                 R.layout.file_info_view,
-                new String[] {FV_IMAGE,
+                new String[]{FV_IMAGE,
                         FV_FILE_NAME,
                         FV_CONNECTION,
                         FV_UPDATE_DT,
                         FV_SyncBtn,
                         FV_DelBtn},
-                new int[] {R.id.fv_imageView,
+                new int[]{R.id.fv_imageView,
                         R.id.fv_textViewFile,
                         R.id.fv_textViewConn,
                         R.id.fv_textViewLastestDT,
@@ -139,6 +146,23 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
+        Button btnCreate = (Button) view.findViewById(R.id.createBtn);
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showCreateFolderDialog();
+            }
+        });
+
+        Button btnEdit = (Button) view.findViewById(R.id.syncAllBtn);
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showSyncDialog();
+            }
+        });
         return view;
     }
 
@@ -167,9 +191,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
 //            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-            try
-            {
-                HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
+            try {
+                HashMap<String, Object> o = (HashMap<String, Object>) mAdapter.getItem(position);
                 File sf = (File) o.get(FV_File);
                 if (sf.isDirectory()) {
                     setupFileList(list, FileInfolist, sf.getAbsolutePath());
@@ -198,7 +221,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
     }
 
-    private void setupFileList(ArrayList<HashMap<String,Object>> list, List<FileInfo> fInfo, String path) {
+    private static void setupFileList(ArrayList<HashMap<String, Object>> list, List<FileInfo> fInfo, String path) {
         //clear before setup
         list.clear();
 
@@ -208,19 +231,19 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 && !path.equalsIgnoreCase(Environment.getExternalStorageDirectory().toString())) {
             //use the provided path
             fItem = new HashMap<String, Object>();
-            fItem.put(FV_IMAGE,R.drawable.forder_back);
-            fItem.put(FV_FILE_NAME,"BACK");
+            fItem.put(FV_IMAGE, R.drawable.forder_back);
+            fItem.put(FV_FILE_NAME, "BACK");
             fItem.put(FV_CONNECTION, "");
-            fItem.put(FV_UPDATE_DT,"");
-            fItem.put(FV_SyncBtn,"");
-            fItem.put(FV_DelBtn,"");
-            fItem.put(FV_File,new File(path).getParentFile());
+            fItem.put(FV_UPDATE_DT, "");
+            fItem.put(FV_SyncBtn, "");
+            fItem.put(FV_DelBtn, "");
+            fItem.put(FV_File, new File(path).getParentFile());
 
             list.add(fItem);
         } else {
             path = Environment.getExternalStorageDirectory().toString();
         }
-
+        nowPath = path;
         //query localfile
         try {
             Log.d(TAG, "Path: " + path);
@@ -234,49 +257,180 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 if (!f1.canRead() || (!f1.isDirectory() && !f1.getName().toLowerCase().endsWith("pdf")))
                     continue;
                 fItem = new HashMap<String, Object>();
-
-                FileInfo fTmp = new FileInfo();
-                fTmp.localFullFilePath = f1.getAbsolutePath();
-                if(fInfo!=null && fInfo.contains(fTmp))
-                {
-                    int fIndex = fInfo.indexOf(fTmp);
-                    FileInfo info = fInfo.get(fIndex);
-                    fItem.put(FV_CONNECTION, getString(R.string.label_source) + info.connectionName);
-                    fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
-                            sdf.format(info.updateTime));
-                } else {
-                    fItem.put(FV_CONNECTION, getString(R.string.label_source) + "Local");
-                    fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) +
-                            sdf.format(new Date(f1.lastModified())));
+                boolean isUpdate = false;
+                if (fInfo != null) {
+                    for (FileInfo item : fInfo) {
+                        if (item.localFullFilePath.equals(f1.getAbsolutePath())) {
+                            fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + item.connectionName);
+                            fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
+                                    sdf.format(item.updateTime));
+                            isUpdate = true;
+                        }
+                    }
+                    if (!isUpdate) {
+                        fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + "Local");
+                        fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
+                                sdf.format(new Date(f1.lastModified())));
+                    }
                 }
 
                 fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
                 fItem.put(FV_FILE_NAME, f1.getName());
-                fItem.put(FV_SyncBtn,"Sync");
-                fItem.put(FV_DelBtn,"Delete");
+                fItem.put(FV_SyncBtn, "Sync");
+                fItem.put(FV_DelBtn, "Delete");
                 fItem.put(FV_File, f1);
 
                 list.add(fItem);
             }
         } catch (Exception e) {
-            Log.w(TAG,e.getMessage());
+            Log.w(TAG, e.getMessage());
         }
     }
 
-    private void getFileList() { FileInfolist = DBManager.getFileInfo(); }
+    public static String doSyncAll(String path) {
+        StringBuilder failName = new StringBuilder();
 
-    private boolean saveFileInfo(ConnectionInfo conn)
-    {
-        return DBManager.insertConnection(conn);
+        List<FileInfo> syncList = new ArrayList<>();
+        List<FileInfo> fInfoList = FileInfolist;
+        for (FileInfo info : fInfoList) {
+            if (info.localFullFilePath.startsWith(path)) {
+                syncList.add(info);
+            }
+        }
+        if (syncList.size() > 0) {
+            List<FileInfo> resList = new ArrayList<>();
+            //TODO:call ConnectionManager Sync()
+
+            updateFileInfo(resList);
+
+            for (FileInfo info : resList) {
+                if (!info.syncSucceed)
+                    failName.append(info.localFullFilePath).append(",");
+            }
+        }
+        return failName.toString();
     }
 
-    private boolean deleteFileInfo(String connName)
-    {
-        return DBManager.deleteConnection(connName);
+    private void showCreateFolderDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View textEntryView = factory.inflate(R.layout.create_folder, null);
+        builder.setTitle("Create Folder");
+        builder.setView(textEntryView);
+
+        final EditText name = (EditText) textEntryView.findViewById(R.id.txtFolderName);
+        name.setText("");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                File folder = new File(nowPath + File.separator + name.getText());
+                boolean success;
+                if (!folder.exists()) {
+                    success = folder.mkdir();
+                    if (success) {
+                        getFileList();
+                        setupFileList(list, FileInfolist, nowPath);
+                        mListView.clearChoices();
+                        mAdapter.notifyDataSetChanged();
+                        Toast.makeText(getActivity(), "新增成功", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "新增失敗", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "資料夾已存在", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.create().show();
     }
 
-    private boolean updateFileInfo(ConnectionInfo conn)
-    {
-        return DBManager.updateConnection(conn);
+    private void showSyncDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View textEntryView = factory.inflate(R.layout.message_dialog, null);
+        builder.setTitle("Warning");
+        builder.setView(textEntryView);
+
+        final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
+        msg.setText("確定要同步?");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String failName = doSyncAll(nowPath);
+                if (failName.equals("")) {
+                    getFileList();
+                    setupFileList(list, FileInfolist, nowPath);
+                    mListView.clearChoices();
+                    mAdapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity(), "同步成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "同步失敗:" + failName, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    public static void resetListViewData() {
+        getFileList();
+        setupFileList(list, FileInfolist, nowPath);
+    }
+
+    private static void getFileList() {
+        FileInfolist = DBManager.getFileInfo();
+    }
+
+    public static boolean insertFileInfo(FileInfo fInfo) {
+        return DBManager.insertFileInfo(fInfo);
+    }
+
+    public static void deleteFileInfo(String pathName) {
+        boolean success;
+        List<FileInfo> retryList = new ArrayList<>();
+        for (FileInfo info : FileInfolist) {
+            if (info.localFullFilePath.startsWith(pathName)) {
+                success = DBManager.deleteFileInfo(info.localFullFilePath);
+                if (!success) {
+                    retryList.add(info);
+                }
+            }
+        }
+        //retry
+        if (retryList.size() > 0) {
+            for (FileInfo info : retryList) {
+                DBManager.deleteFileInfo(info.localFullFilePath);
+            }
+        }
+    }
+
+    private static void updateFileInfo(List<FileInfo> fInfoList) {
+        boolean success;
+        List<FileInfo> retryList = new ArrayList<>();
+        for (FileInfo info : fInfoList) {
+            success = DBManager.updateFileInfo(info);
+            if (!success) {
+                retryList.add(info);
+            }
+        }
+        //retry
+        if (retryList.size() > 0) {
+            for (FileInfo info : retryList) {
+                DBManager.updateFileInfo(info);
+            }
+        }
     }
 }
