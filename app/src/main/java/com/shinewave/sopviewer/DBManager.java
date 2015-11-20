@@ -106,17 +106,27 @@ public class DBManager {
     }
 
     public static boolean updateFileInfo(FileInfo info) {
-
         boolean res = false;
         SQLiteDatabase db = sopDBAccess.getWritableDatabase();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String updateString = "";
+        String remoteDateString = "";
+
+        try {
+            updateString = sdf.format(info.updateTime);
+            remoteDateString = sdf.format(info.remoteTimeStamp);
+        } catch (Exception e) {
+            Log.d("TAG", e.getMessage());
+        }
 
         String name = info.localFullFilePath;
         ContentValues ctv = new ContentValues();
         ctv.put("remoteFullFilePath", info.remoteFullFilePath);
         ctv.put("connectionName", info.connectionName);
+        ctv.put("updateTime", updateString);
         ctv.put("size", info.size);
-        ctv.put("remoteTimeStamp", info.remoteTimeStamp.toString());
-        ctv.put("updateTime", info.updateTime.toString());
+        ctv.put("remoteTimeStamp", remoteDateString);
+
         try {
             long resLong = db.update("SOPViewer_FileInfo", ctv, "localFullFilePath=?", new String[]{name});
             if (resLong >= 0)
