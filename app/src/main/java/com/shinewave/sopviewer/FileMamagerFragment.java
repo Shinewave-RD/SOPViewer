@@ -121,7 +121,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         R.id.fv_textViewConn,
                         R.id.fv_textViewLastestDT,
                         R.id.ItemButton_Sync,
-                        R.id.ItemButton_Del}
+                        R.id.ItemButton_Del},
+                false
         );
     }
 

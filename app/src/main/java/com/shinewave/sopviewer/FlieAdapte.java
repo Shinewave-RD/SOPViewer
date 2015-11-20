@@ -26,6 +26,8 @@ public class FlieAdapte extends BaseAdapter {
 
     private ItemView itemView;
 
+    private boolean fromRemote = false;
+
     private class ItemView {
         public ImageView FV_IMG;
         public TextView FV_FileName;
@@ -35,9 +37,10 @@ public class FlieAdapte extends BaseAdapter {
         public Button viewBtn_Del;
     }
 
-    public FlieAdapte(Context c, ArrayList<HashMap<String, Object>> appList, int resource, String[] from, int[] to) {
+    public FlieAdapte(Context c, ArrayList<HashMap<String, Object>> appList, int resource, String[] from, int[] to, boolean fromRemote) {
         mAppList = appList;
         mContext = c;
+        this.fromRemote = fromRemote;
         mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         keyString = new String[from.length];
         valueViewID = new int[to.length];
@@ -99,7 +102,7 @@ public class FlieAdapte extends BaseAdapter {
             //itemView.File = (File) appInfo.get(keyString[6]);
             itemView.FV_IMG.setImageDrawable(itemView.FV_IMG.getResources().getDrawable(mid));
             //itemView.viewBtn.setBackgroundDrawable(itemView.ItemButton.getResources().getDrawable(bid));
-            if(name!="BACK") {
+            if(name!="BACK" && !fromRemote) {
                 itemView.viewBtn_Sync.setVisibility(View.VISIBLE);
                 itemView.viewBtn_Del.setVisibility(View.VISIBLE);
                 itemView.viewBtn_Sync.setOnClickListener(new ItemButtonSync_Click(position));
