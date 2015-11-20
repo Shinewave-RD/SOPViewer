@@ -58,11 +58,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
 
     private static final String FV_IMAGE = "image";
     private static final String FV_FILE_NAME = "fileName";
-    private static final String FV_CONNECTION = "connection_name";
-    private static final String FV_UPDATE_DT = "last_update_time";
+    private static final String FV_SIZE = "size";
+    private static final String FV_MODIFY_DT = "modify_time";
     private static final String FV_File = "fileObject";
-    private static final String FV_SyncBtn = "sync";
-    private static final String FV_DelBtn = "delete";
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private IFragmentInteraction mListener;
@@ -106,19 +104,15 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
         mAdapter = new FlieAdapte(
                 getActivity(),
                 list,
-                R.layout.file_info_view,
+                R.layout.remote_file_info_view,
                 new String[] {FV_IMAGE,
                         FV_FILE_NAME,
-                        FV_CONNECTION,
-                        FV_UPDATE_DT,
-                        FV_SyncBtn,
-                        FV_DelBtn},
+                        FV_SIZE,
+                        FV_MODIFY_DT},
                 new int[] {R.id.fv_imageView,
                         R.id.fv_textViewFile,
                         R.id.fv_textViewConn,
-                        R.id.fv_textViewLastestDT,
-                        R.id.ItemButton_Sync,
-                        R.id.ItemButton_Del},
+                        R.id.fv_textViewLastestDT},
                 true
         );
 
@@ -184,6 +178,10 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                     mListView.clearChoices();
                     mAdapter.notifyDataSetChanged();
                 }
+                else if(sf.getType() == FTPFile.TYPE_FILE)
+                {
+
+                }
             } catch (ClassCastException ec) {
                 //normal case
             }
@@ -227,8 +225,6 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                             if (type == FTPFile.TYPE_DIRECTORY ) {
                                 boolean addedFlag = false;
                                 fItem = new HashMap<String, Object>();
-                                fItem.put(FV_CONNECTION, getString(R.string.label_source) + info.connectionName);
-                                fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) + sdf.format(ftpFile.getModifiedDate()));
                                 fItem.put(FV_IMAGE, R.drawable.folder_pdf);
                                 fItem.put(FV_FILE_NAME, ftpFile.getName());
                                 fItem.put(FV_File, ftpFile);
@@ -255,8 +251,8 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                             {
                                 boolean addedFlag = false;
                                 fItem = new HashMap<String, Object>();
-                                fItem.put(FV_CONNECTION, getString(R.string.label_source) + info.connectionName);
-                                fItem.put(FV_UPDATE_DT, getString(R.string.label_last_update) + sdf.format(ftpFile.getModifiedDate()));
+                                fItem.put(FV_SIZE, getString(R.string.label_size) + String.valueOf(ftpFile.getSize()));
+                                fItem.put(FV_MODIFY_DT, getString(R.string.label_modify) + sdf.format(ftpFile.getModifiedDate()));
                                 fItem.put(FV_IMAGE, R.drawable.pdf);
                                 fItem.put(FV_FILE_NAME, ftpFile.getName());
                                 fItem.put(FV_File, ftpFile);
@@ -302,10 +298,8 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 fItem = new HashMap<String, Object>();
                 fItem.put(FV_IMAGE,R.drawable.forder_back);
                 fItem.put(FV_FILE_NAME,"BACK");
-                fItem.put(FV_CONNECTION, "");
-                fItem.put(FV_UPDATE_DT,"");
-                fItem.put(FV_SyncBtn,"");
-                fItem.put(FV_DelBtn, "");
+                fItem.put(FV_SIZE, "");
+                fItem.put(FV_MODIFY_DT,"");
                 FTPFile f = new FTPFile();
                 String[] strs = path.split("/");
                 if (strs.length >= 2) {
