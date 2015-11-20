@@ -3,6 +3,7 @@ package com.shinewave.sopviewer;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +15,7 @@ import java.util.List;
  */
 public class DBManager {
 
+    private static final String TAG = "DBManager";
     private static DataBaseHelper sopDBAccess;
 
     public static void initDBHelp(DataBaseHelper dbAccess) {
@@ -23,12 +25,12 @@ public class DBManager {
     public static List<FileInfo> getFileInfo() {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
         List<FileInfo> list = new ArrayList<>();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Cursor cr = null;
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_FileInfo", null);
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
         if (cr != null) {
             cr.moveToFirst();
@@ -44,7 +46,7 @@ public class DBManager {
                     list.add(info);
                     cr.moveToNext();
                 } catch (ParseException e) {
-                    //
+                    Log.d("TAG", e.getMessage());
                 }
             }
             cr.close();
@@ -70,7 +72,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
         db.close();
         return res;
@@ -85,7 +87,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
 
         db.close();
@@ -109,11 +111,43 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
 
         db.close();
         return res;
+    }
+
+    public static FileInfo getSingleFileInfo(String fullPath) {
+        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        FileInfo info = new FileInfo();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Cursor cr = null;
+        try {
+            cr = db.rawQuery("SELECT * FROM SOPViewer_FileInfo WHERE localFullFilePath=?", new String[]{fullPath});
+        } catch (Exception e) {
+            Log.d("TAG", e.getMessage());
+        }
+        if (cr != null) {
+            cr.moveToFirst();
+            for (int i = 0; i < cr.getCount(); i++) {
+                try {
+                    info.localFullFilePath = cr.getString(0);
+                    info.remoteFullFilePath = cr.getString(1);
+                    info.connectionName = cr.getString(2);
+                    info.updateTime = format.parse(cr.getString(3));
+                    info.size = cr.getInt(4);
+                    info.remoteTimeStamp = format.parse(cr.getString(5));
+                    cr.moveToNext();
+                } catch (ParseException e) {
+                    Log.d("TAG", e.getMessage());
+                }
+            }
+            cr.close();
+        }
+        db.close();
+
+        return info;
     }
 
     public static ConnectionInfo getConnection(String connName) {
@@ -123,7 +157,7 @@ public class DBManager {
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_ConnectionInfo where connectionName=" + connName, null);
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
         if (cr != null) {
             cr.moveToFirst();
@@ -148,7 +182,7 @@ public class DBManager {
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_ConnectionInfo", null);
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
         if (cr != null) {
             cr.moveToFirst();
@@ -186,7 +220,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
         db.close();
         return res;
@@ -201,7 +235,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d("TAG", e.getMessage());
         }
 
         db.close();
