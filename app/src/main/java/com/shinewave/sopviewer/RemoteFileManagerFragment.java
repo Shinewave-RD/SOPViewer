@@ -367,7 +367,8 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
         private FTPFile ftpFile;
 
         @Override
-        protected File doInBackground(FTPFile... params) {
+        protected File doInBackground(FTPFile... params)
+        {
             try {
                 ftpFile = params[0];
                 ftpClient = new FTPClient();

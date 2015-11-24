@@ -300,6 +300,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         if (syncList.size() > 0) {
             List<FileInfo> resList = new ArrayList<>();
             //TODO:call ConnectionManager Sync()
+            resList = ConnectionManagerFragment.doSync(syncList); //james add
 
             updateFileInfo(resList);
 

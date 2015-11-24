@@ -180,8 +180,7 @@ public class DBManager {
         } catch (Exception e) {
             Log.d("TAG", e.getMessage());
         }
-        if (cr != null) {
-            cr.moveToFirst();
+        if (cr != null && cr.moveToFirst()) {
             info = new ConnectionInfo();
             info.connectionName = cr.getString(0);
             info.protocol = cr.getInt(1);

@@ -380,4 +380,31 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
         builder.create().show();
     }
+
+    public static List<FileInfo> doSync(List<FileInfo> list)
+    {
+        for(int i = 0; i < list.size(); i++)
+        {
+            FileInfo file = list.get(i);
+            try
+            {
+                ConnectionInfo conn = DBManager.getConnection(file.connectionName);
+                if(conn != null)
+                {
+                    if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
+                        file = new SyncFtpFiles().execute(file).get();
+                }
+                else
+                {
+                    file.syncSucceed = false;
+                }
+            }
+            catch(Exception e)
+            {
+                file.syncSucceed = false;
+            }
+        }
+
+        return list;
+    }
 }
