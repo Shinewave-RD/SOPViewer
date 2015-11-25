@@ -383,6 +383,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
     public static List<FileInfo> doSync(List<FileInfo> list)
     {
+        System.out.println(list.size() +","+ (0 < list.size()));
         for(int i = 0; i < list.size(); i++)
         {
             FileInfo file = list.get(i);
@@ -393,6 +394,8 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
                 {
                     if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
                         file = new SyncFtpFiles().execute(file).get();
+                    else if(ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
+                        file = new SyncSmbFiles().execute(file).get();
                 }
                 else
                 {
