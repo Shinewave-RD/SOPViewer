@@ -289,7 +289,7 @@ public class DBManager {
         SQLiteDatabase db = sopDBAccess.getReadableDatabase();
         List<PlayList> list = new ArrayList<>();
         PlayList info = new PlayList();
-        PlayListItem item = new PlayListItem();
+        PlayListItem item = new PlayListItem(0, "", "", null, 0);
         Cursor cr = null;
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_PlayList ORDER BY playListName", null);

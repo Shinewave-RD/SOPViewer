@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity
             case 2:
                 fragment = ConnectionManagerFragment.newInstance(position + 1, "");
                 break;
+            case 3:
+                fragment = PlayListManagerFragment.newInstance(position + 1, "");
+                break;
             case 4:
                 fragment = ViewerSettingsFragment.newInstance(position + 1, "");
                 break;
