@@ -364,6 +364,14 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                     }
                 } catch (Exception e) {
                     Log.e("doConnection", e.toString());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Error!!");
+                    builder.setMessage("Connect Error!! Please check the Connection setting.");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    });
+                    builder.create().show();
                 }
 
             } else if (ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType))) {
@@ -453,6 +461,14 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                     }
                 } catch (Exception e) {
                     Log.e("doConnection", e.toString());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Error!!");
+                    builder.setMessage("Connect Error!! Please check the Connection setting.");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    });
+                    builder.create().show();
                 }
 
             }
@@ -489,6 +505,14 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
 
                 return file;
             } catch (Exception e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Error!!");
+                builder.setMessage("Download Error!! Please check the Connection setting.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+                builder.create().show();
                 return null;
             }
         }
@@ -497,6 +521,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
         protected void onPostExecute(File result)
         {
             super.onPostExecute(result);
+
+            if(result == null)
+                return;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Download Finish.");
@@ -545,6 +572,14 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
 
                 return localPath;
             } catch (Exception e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Error!!");
+                builder.setMessage("Download Error!! Please check the Connection setting.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+                builder.create().show();
                 return null;
             }
         }
@@ -553,6 +588,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
         protected void onPostExecute(String result)
         {
             super.onPostExecute(result);
+
+            if(result == null)
+                return;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Download Finish.");

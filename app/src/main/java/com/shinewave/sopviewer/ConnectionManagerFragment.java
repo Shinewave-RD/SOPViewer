@@ -268,41 +268,6 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
             MainActivity ma = (MainActivity)getActivity();
             ma.onFragmentInteraction(conn.connectionName);
             ma.onNavigationDrawerItemSelected(4);
-
-            if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
-            {
-                try {
-                    FTPClient ftpClient = new FTPClient();
-                    ftpClient.getConnector().setConnectionTimeout(CONNECT_OVERTIME);
-                    ftpClient.connect(conn.url);
-                    ftpClient.login(conn.id, conn.password);
-                    ftpClient.changeDirectory("/");
-                    FTPFile[] ftpFiles = ftpClient.list();
-                    if (ftpFiles != null) {
-                        System.out.println(ftpFiles.length);
-                    }
-                }
-                catch(Exception e)
-                {
-                    Log.e("doConnection", e.toString());
-                }
-            }
-            else if(ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType)))
-            {
-                try {
-                    NtlmPasswordAuthentication authentication = new NtlmPasswordAuthentication("", conn.id, conn.password); // domain, user, password
-                    SmbFile currentFolder = new SmbFile("smb://" + conn.url, authentication);
-                    SmbFile[] listFiles = currentFolder.listFiles();
-                    if (listFiles != null) {
-                        System.out.println(listFiles.length);
-                    }
-                }
-                catch(Exception e)
-                {
-                    Log.e("doConnection", e.toString());
-                }
-
-            }
         }
     }
 
@@ -383,7 +348,6 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
 
     public static List<FileInfo> doSync(List<FileInfo> list)
     {
-        System.out.println(list.size() +","+ (0 < list.size()));
         for(int i = 0; i < list.size(); i++)
         {
             FileInfo file = list.get(i);
