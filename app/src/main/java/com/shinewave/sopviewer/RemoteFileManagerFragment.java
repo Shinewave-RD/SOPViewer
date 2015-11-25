@@ -15,15 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.artifex.mupdfdemo.AsyncTask;
-import com.shinewave.sopviewer.dummy.DummyContent;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
@@ -31,7 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
 import it.sauronsoftware.ftp4j.FTPClient;
@@ -64,6 +62,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
     private static final String FV_SIZE = "size";
     private static final String FV_MODIFY_DT = "modify_time";
     private static final String FV_File = "fileObject";
+    private static final String FV_SMB_PATH = "smb_path";
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private IFragmentInteraction mListener;
@@ -167,48 +166,83 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
             try
             {
                 HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
-                final FTPFile sf = (FTPFile) o.get(FV_File);
-                if (sf.getType() == FTPFile.TYPE_DIRECTORY) {
-                    String newTmpPath = tmpPath + sf.getName() + "/";
-                    setupFileList(list, info, newTmpPath);
-                    mListView.clearChoices();
-                    mAdapter.notifyDataSetChanged();
-                }
-                else if(sf.getType() == FTPFile.TYPE_LINK)
-                {
-                    String newTmpPath = sf.getName();
-                    setupFileList(list, info, newTmpPath);
-                    mListView.clearChoices();
-                    mAdapter.notifyDataSetChanged();
-                }
-                else if(sf.getType() == FTPFile.TYPE_FILE)
-                {
-                    File file = new File(Environment.getExternalStorageDirectory()
-                            + File.separator + sf.getName());
-                    if (!file.exists()) {
-                        new DownloadFile().execute(sf);
-                    }
-                    else
-                    {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle("Alert!!");
-                        builder.setMessage("File exist !! Are you sure to overwrite?");
-                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                new DownloadFile().execute(sf);
-                            }
-                        });
+                if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(info.protocolType))) {
+                    final FTPFile sf = (FTPFile) o.get(FV_File);
+                    if (sf.getType() == FTPFile.TYPE_DIRECTORY) {
+                        String newTmpPath = tmpPath + sf.getName() + "/";
+                        setupFileList(list, info, newTmpPath);
+                        mListView.clearChoices();
+                        mAdapter.notifyDataSetChanged();
+                    } else if (sf.getType() == FTPFile.TYPE_LINK) {
+                        String newTmpPath = sf.getName();
+                        setupFileList(list, info, newTmpPath);
+                        mListView.clearChoices();
+                        mAdapter.notifyDataSetChanged();
+                    } else if (sf.getType() == FTPFile.TYPE_FILE) {
+                        File file = new File(Environment.getExternalStorageDirectory()
+                                + File.separator + sf.getName());
+                        if (!file.exists()) {
+                            new DownloadFtpFile().execute(sf);
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Alert!!");
+                            builder.setMessage("File exist !! Are you sure to overwrite?");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    new DownloadFtpFile().execute(sf);
+                                }
+                            });
 
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
 
-                            }
-                        });
+                                }
+                            });
 
-                        builder.create().show();
+                            builder.create().show();
+                        }
                     }
                 }
-            } catch (ClassCastException ec) {
+                else if(ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(info.protocolType)))
+                {
+                    final SmbFile sf = (SmbFile) o.get(FV_File);
+                    if(sf == null) {
+                        String newTmpPath = (String) o.get(FV_SMB_PATH);
+                        setupFileList(list, info, newTmpPath);
+                        mListView.clearChoices();
+                        mAdapter.notifyDataSetChanged();
+                    }
+                    else if (sf.isDirectory()) {
+                        String newTmpPath = tmpPath + sf.getName();
+                        setupFileList(list, info, newTmpPath);
+                        mListView.clearChoices();
+                        mAdapter.notifyDataSetChanged();
+                    } else if (sf.isFile()) {
+                        File file = new File(Environment.getExternalStorageDirectory()
+                                + File.separator + sf.getName());
+                        if (!file.exists()) {
+                            new DownloadSmbFile().execute(sf);
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Alert!!");
+                            builder.setMessage("File exist !! Are you sure to overwrite?");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    //new DownloadFtpFile().execute(sf);
+                                }
+                            });
+
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                }
+                            });
+
+                            builder.create().show();
+                        }
+                    }
+                }
+            } catch (Exception ec) {
                 //normal case
             }
 
@@ -300,6 +334,34 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                         }
                     }
                     ftpClient.disconnect(true);
+
+                    if (null != path && !path.isEmpty() && !path.equalsIgnoreCase("/")) {
+                        //use the provided path
+                        fItem = new HashMap<String, Object>();
+                        fItem.put(FV_IMAGE,R.drawable.forder_back);
+                        fItem.put(FV_FILE_NAME,"BACK");
+                        fItem.put(FV_SIZE, "");
+                        fItem.put(FV_MODIFY_DT,"");
+                        FTPFile f = new FTPFile();
+                        String[] strs = path.split("/");
+                        if (strs.length >= 2) {
+                            String backPath = "/";
+                            for (int i = 0; i < strs.length - 1; ++i) {
+                                if (!strs[i].equals("") && strs[i] != null)
+                                    backPath = backPath + strs[i] + "/";
+                            }
+                            f.setName(backPath);
+                        }
+                        else
+                        {
+                            f.setName("/");
+                        }
+
+                        f.setType(FTPFile.TYPE_LINK);
+                        fItem.put(FV_File, f);
+
+                        list.add(0,fItem);
+                    }
                 } catch (Exception e) {
                     Log.e("doConnection", e.toString());
                 }
@@ -307,46 +369,93 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
             } else if (ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(conn.protocolType))) {
                 try {
                     NtlmPasswordAuthentication authentication = new NtlmPasswordAuthentication("", conn.id, conn.password); // domain, user, password
-                    SmbFile currentFolder = new SmbFile("smb://" + conn.url, authentication);
-                    SmbFile[] listFiles = currentFolder.listFiles();
-                    if (listFiles != null) {
-                        System.out.println(listFiles.length);
+                    SmbFile currentFolder = new SmbFile("smb://" + conn.url + path, authentication);
+                    SmbFile[] smbFiles = currentFolder.listFiles();
+                    if (smbFiles != null) {
+                        int ftpFileCount = smbFiles.length;
+                        int folderNum = 0;
+                        for (int ftpFileIndex = 0; ftpFileIndex < ftpFileCount; ++ftpFileIndex) {
+                            SmbFile smbFile = smbFiles[ftpFileIndex];
+                            int fileInfoCount = list.size();
+                            if (smbFile.isDirectory()) {
+                                boolean addedFlag = false;
+                                fItem = new HashMap<String, Object>();
+                                fItem.put(FV_IMAGE, R.drawable.folder_pdf);
+                                fItem.put(FV_FILE_NAME, smbFile.getName());
+                                fItem.put(FV_File, smbFile);
+
+                                for (int fileInfoIndex = 0; fileInfoIndex < folderNum; ++fileInfoIndex) {
+                                    if (compare(fItem.get(FV_FILE_NAME).toString(),
+                                            list.get(fileInfoIndex).get(FV_FILE_NAME).toString()) < 0) {
+                                        list.add(fileInfoIndex, fItem);
+                                        addedFlag = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!addedFlag) {
+                                    if (folderNum == fileInfoCount) {
+                                        list.add(fItem);
+                                    } else {
+                                        list.add(folderNum, fItem);
+                                    }
+                                }
+                                folderNum++;
+                            }
+                            else if(smbFile.isFile() && smbFile.getName().toLowerCase(Locale.getDefault()).endsWith("pdf"))
+                            {
+                                boolean addedFlag = false;
+                                fItem = new HashMap<String, Object>();
+                                fItem.put(FV_SIZE, getString(R.string.label_size) + String.valueOf(smbFile.length()));
+                                fItem.put(FV_MODIFY_DT, getString(R.string.label_modify) + sdf.format(smbFile.lastModified()));
+                                fItem.put(FV_IMAGE, R.drawable.pdf);
+                                fItem.put(FV_FILE_NAME, smbFile.getName());
+                                fItem.put(FV_File, smbFile);
+                                for (int fileInfoIndex = folderNum; fileInfoIndex < fileInfoCount; ++fileInfoIndex) {
+                                    if (compare(fItem.get(FV_FILE_NAME).toString(),
+                                            list.get(fileInfoIndex).get(FV_FILE_NAME).toString()) < 0) {
+                                        list.add(fileInfoIndex, fItem);
+                                        addedFlag = true;
+                                        break;
+                                    }
+                                }
+                                if (!addedFlag) {
+                                    list.add(fItem);
+                                }
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+                        if (null != path && !path.isEmpty() && !path.equalsIgnoreCase("/")) {
+                            //use the provided path
+                            fItem = new HashMap<String, Object>();
+                            fItem.put(FV_IMAGE,R.drawable.forder_back);
+                            fItem.put(FV_FILE_NAME,"BACK");
+                            fItem.put(FV_SIZE, "");
+                            fItem.put(FV_MODIFY_DT,"");
+                            String[] strs = path.split("/");
+                            if (strs.length >= 2) {
+                                String backPath = "/";
+                                for (int i = 0; i < strs.length - 1; ++i) {
+                                    if (!strs[i].equals("") && strs[i] != null)
+                                        backPath = backPath + strs[i] + "/";
+                                }
+                                fItem.put(FV_SMB_PATH,backPath);
+                            }
+                            else
+                            {
+                                fItem.put(FV_SMB_PATH,"/");
+                            }
+                            list.add(0,fItem);
+                        }
                     }
                 } catch (Exception e) {
                     Log.e("doConnection", e.toString());
                 }
 
             }
-
-            if ((null != path) && !path.isEmpty()
-                    && !path.equalsIgnoreCase("/")) {
-                //use the provided path
-                fItem = new HashMap<String, Object>();
-                fItem.put(FV_IMAGE,R.drawable.forder_back);
-                fItem.put(FV_FILE_NAME,"BACK");
-                fItem.put(FV_SIZE, "");
-                fItem.put(FV_MODIFY_DT,"");
-                FTPFile f = new FTPFile();
-                String[] strs = path.split("/");
-                if (strs.length >= 2) {
-                    String backPath = "/";
-                    for (int i = 0; i < strs.length - 1; ++i) {
-                        if (!strs[i].equals("") && strs[i] != null)
-                            backPath = backPath + strs[i] + "/";
-                    }
-                    f.setName(backPath);
-                }
-                else
-                {
-                    f.setName("/");
-                }
-
-                f.setType(FTPFile.TYPE_LINK);
-                fItem.put(FV_File, f);
-
-                list.add(0,fItem);
-            }
-
             tmpPath = path;
         }
     }
@@ -360,9 +469,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 ((CollationKey) c2).getSourceString());
     }
 
-
-
-    private class DownloadFile extends AsyncTask<FTPFile, Integer, File> {
+    private class DownloadFtpFile extends AsyncTask<FTPFile, Integer, File> {
         private FTPClient ftpClient;
         private FTPFile ftpFile;
 
@@ -375,11 +482,8 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 ftpClient.connect(info.url);
                 ftpClient.login(info.id, info.password);
                 ftpClient.changeDirectory(tmpPath);
-                File file = new File(Environment.getExternalStorageDirectory()
-                        + File.separator + ftpFile.getName());
-                //if (!file.exists()) {
-                    ftpClient.download(ftpFile.getName(), file);
-                //}
+                File file = new File(Environment.getExternalStorageDirectory() + File.separator + ftpFile.getName());
+                ftpClient.download(ftpFile.getName(), file);
                 if (ftpClient != null)
                     ftpClient.disconnect(true);
 
@@ -410,6 +514,66 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
             fileInfo.syncSucceed = true;
             fileInfo.size = (int)result.length();
             fileInfo.remoteTimeStamp = ftpFile.getModifiedDate();
+
+            FileInfo tmp = DBManager.getSingleFileInfo(fileInfo.localFullFilePath);
+            if(tmp != null && tmp.localFullFilePath != null)
+                DBManager.updateFileInfo(fileInfo);
+            else
+                DBManager.insertFileInfo(fileInfo);
+        }
+
+    }
+
+    private class DownloadSmbFile extends AsyncTask<SmbFile, Integer, String> {
+        private SmbFile smbFile;
+
+        @Override
+        protected String doInBackground(SmbFile... params)
+        {
+            try {
+                smbFile = params[0];
+                String localPath = Environment.getExternalStorageDirectory() + File.separator + smbFile.getName();
+                FileOutputStream fileOutputStream = new FileOutputStream(localPath);
+                InputStream fileInputStream = smbFile.getInputStream();
+                byte[] buf = new byte[16 * 1024 * 1024];
+                int len;
+                while ((len = fileInputStream.read(buf)) > 0) {
+                    fileOutputStream.write(buf, 0, len);
+                }
+                fileInputStream.close();
+                fileOutputStream.close();
+
+                return localPath;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result)
+        {
+            super.onPostExecute(result);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Download Finish.");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            builder.create().show();
+
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.localFullFilePath = result;
+            fileInfo.remoteFullFilePath = smbFile.getPath();
+            fileInfo.connectionName = info.connectionName;
+            fileInfo.updateTime = new Date(System.currentTimeMillis());
+            fileInfo.syncSucceed = true;
+            fileInfo.size = (int)result.length();
+            try {
+                fileInfo.remoteTimeStamp = new Date(smbFile.lastModified());
+            }
+            catch(Exception e)
+            {}
 
             FileInfo tmp = DBManager.getSingleFileInfo(fileInfo.localFullFilePath);
             if(tmp != null && tmp.localFullFilePath != null)
