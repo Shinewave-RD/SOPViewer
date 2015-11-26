@@ -61,7 +61,6 @@
                 android:layout_height="50dip"
                 android:textSize="15sp"
                 android:singleLine="true"
-                android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 android:maxLength="500"
                 />
 
@@ -79,7 +78,6 @@
                 android:layout_height="50dip"
                 android:textSize="15sp"
                 android:singleLine="true"
-                android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 android:maxLength="40"
                 />
 
@@ -98,7 +96,6 @@
                 android:inputType="textPassword"
                 android:textSize="15sp"
                 android:singleLine="true"
-                android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 android:maxLength="40"
                 />
 
