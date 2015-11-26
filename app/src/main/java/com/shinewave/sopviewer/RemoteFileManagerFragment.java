@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -72,6 +73,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
     private RuleBasedCollator collator = (RuleBasedCollator) Collator.getInstance(Locale.getDefault());
     private FlieAdapte mAdapter;
     private ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
+    private HashMap<String,Object> o;
 
     // TODO: Rename and change types of parameters
     public static RemoteFileManagerFragment newInstance(int param1, String param2) {
@@ -134,6 +136,15 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
+        Button btnDownload = (Button) view.findViewById(R.id.downloadBtn);
+        btnDownload.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                doDownload();
+            }
+        });
+
         return view;
     }
 
@@ -165,7 +176,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
 //            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
             try
             {
-                HashMap<String,Object> o = (HashMap<String,Object>) mAdapter.getItem(position);
+                o = (HashMap<String,Object>) mAdapter.getItem(position);
                 if(ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(info.protocolType))) {
                     final FTPFile sf = (FTPFile) o.get(FV_File);
                     if (sf.getType() == FTPFile.TYPE_DIRECTORY) {
@@ -178,29 +189,6 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                         setupFileList(list, info, newTmpPath);
                         mListView.clearChoices();
                         mAdapter.notifyDataSetChanged();
-                    } else if (sf.getType() == FTPFile.TYPE_FILE) {
-                        File file = new File(Environment.getExternalStorageDirectory()
-                                + File.separator + sf.getName());
-                        if (!file.exists()) {
-                            new DownloadFtpFile().execute(sf);
-                        } else {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Alert!!");
-                            builder.setMessage("File exist !! Are you sure to overwrite?");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    new DownloadFtpFile().execute(sf);
-                                }
-                            });
-
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-
-                                }
-                            });
-
-                            builder.create().show();
-                        }
                     }
                 }
                 else if(ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(info.protocolType)))
@@ -217,35 +205,19 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                         setupFileList(list, info, newTmpPath);
                         mListView.clearChoices();
                         mAdapter.notifyDataSetChanged();
-                    } else if (sf.isFile()) {
-                        File file = new File(Environment.getExternalStorageDirectory()
-                                + File.separator + sf.getName());
-                        if (!file.exists()) {
-                            new DownloadSmbFile().execute(sf);
-                        } else {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Alert!!");
-                            builder.setMessage("File exist !! Are you sure to overwrite?");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    //new DownloadFtpFile().execute(sf);
-                                }
-                            });
-
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-
-                                }
-                            });
-
-                            builder.create().show();
-                        }
                     }
                 }
             } catch (Exception ec) {
-                //normal case
+                Log.e("doConnection", ec.toString());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Error!!");
+                builder.setMessage("Connect Error!! Please check the Connection setting.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+                builder.create().show();
             }
-
         }
     }
 
@@ -483,6 +455,77 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
 
         return collator.compare(((CollationKey) c1).getSourceString(),
                 ((CollationKey) c2).getSourceString());
+    }
+
+    private void doDownload() {
+        if (null != o) {
+            try {
+                if (ConnectionInfo.ProtocolType.FTP.equals(ConnectionInfo.ProtocolType.valueOf(info.protocolType))) {
+                    final FTPFile sf = (FTPFile) o.get(FV_File);
+                    if(sf.getType() == FTPFile.TYPE_FILE) {
+                        File file = new File(Environment.getExternalStorageDirectory()
+                                + File.separator + sf.getName());
+                        if (!file.exists()) {
+                            new DownloadFtpFile().execute(sf);
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Alert!!");
+                            builder.setMessage("File exist !! Are you sure to overwrite?");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    new DownloadFtpFile().execute(sf);
+                                }
+                            });
+
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                }
+                            });
+
+                            builder.create().show();
+                        }
+                    }
+                } else if (ConnectionInfo.ProtocolType.SMB.equals(ConnectionInfo.ProtocolType.valueOf(info.protocolType))) {
+                    final SmbFile sf = (SmbFile) o.get(FV_File);
+                    if(sf.isFile()) {
+                        File file = new File(Environment.getExternalStorageDirectory()
+                                + File.separator + sf.getName());
+                        if (!file.exists()) {
+                            new DownloadSmbFile().execute(sf);
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Alert!!");
+                            builder.setMessage("File exist !! Are you sure to overwrite?");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    //new DownloadFtpFile().execute(sf);
+                                }
+                            });
+
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                }
+                            });
+
+                            builder.create().show();
+                        }
+                    }
+                }
+            } catch (Exception ec) {
+                Log.e("doConnection", ec.toString());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Error!!");
+                builder.setMessage("Download Error!! Please check the Connection setting.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+                builder.create().show();
+            }
+
+        }
     }
 
     private class DownloadFtpFile extends AsyncTask<FTPFile, Integer, File> {
