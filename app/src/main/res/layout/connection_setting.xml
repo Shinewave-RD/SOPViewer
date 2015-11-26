@@ -30,6 +30,7 @@
                 android:layout_height="50dip"
                 android:textSize="15sp"
                 android:singleLine="true"
+                android:maxLength="25"
                 />
 
             <TextView
@@ -60,6 +61,8 @@
                 android:layout_height="50dip"
                 android:textSize="15sp"
                 android:singleLine="true"
+                android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                android:maxLength="500"
                 />
 
             <TextView
@@ -76,6 +79,8 @@
                 android:layout_height="50dip"
                 android:textSize="15sp"
                 android:singleLine="true"
+                android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                android:maxLength="40"
                 />
 
             <TextView
@@ -93,6 +98,8 @@
                 android:inputType="textPassword"
                 android:textSize="15sp"
                 android:singleLine="true"
+                android:digits="abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                android:maxLength="40"
                 />
 
         </LinearLayout>
