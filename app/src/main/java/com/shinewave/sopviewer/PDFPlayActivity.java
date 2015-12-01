@@ -58,6 +58,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                     mPageNumberView.setText(String.format("%d / %d", i + 1, core.countPages()));
                     mPageSlider.setMax((core.countPages() - 1) * mPageSliderRes);
                     mPageSlider.setProgress(i * mPageSliderRes);
+                    Thread.interrupted();
                     super.onMoveToChild(i);
                 }
 
@@ -78,14 +79,31 @@ public class PDFPlayActivity extends AppCompatActivity {
 
             handler = new Handler() {
 
+                Timer timer;
                 public void handleMessage(Message msg) {
-                    System.out.println("---------------------------="+msg.what);
+
+
                     if(msg.what > 0) {
-                        try {
-                            Thread.sleep(5000);
-                        } catch (Exception e) {
+                        if(timer != null) {
+                            timer.cancel();
+                            timer.purge();
+                            timer = null;
                         }
-                        mDocView.moveToNext();
+                        timer = new Timer();
+                        TimerTask timerTask = new TimerTask() {
+
+                            public void run() {
+
+                                handler.post(new Runnable() {
+
+                                    public void run() {
+                                        mDocView.moveToNext();
+                                    }
+
+                                });
+                            }
+                        };
+                        timer.schedule(timerTask, 20000);
                     }
                 }
             };
@@ -114,26 +132,6 @@ public class PDFPlayActivity extends AppCompatActivity {
         layout.addView(mDocView);
         layout.addView(mButtonsView);
         setContentView(layout);
-
-        /*
-        Timer timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-
-            public void run() {
-
-                handler.post(new Runnable() {
-
-                    public void run() {
-                        mDocView.moveToNext();
-                    }
-
-                });
-
-            }
-
-        };
-        */
-        //timer.schedule(timerTask, 5000, 5000);
 
         //setContentView(R.layout.activity_pdfplay);
     }

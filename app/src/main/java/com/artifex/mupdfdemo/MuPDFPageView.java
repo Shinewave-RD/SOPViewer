@@ -634,25 +634,6 @@ public class MuPDFPageView extends PageView implements MuPDFView {
 	public void setPage(final int page, PointF size) {
 		loadAnnotations();
 
-		final Handler myHandler = new Handler() {
-
-			public void handleMessage(Message msg) {
-				System.out.println("---------------------------="+page);
-				if(page > 0)
-				{
-					try {
-						Thread.sleep(5000);
-
-					}
-                    catch(Exception e)
-					{
-
-					}
-
-				}
-			}
-		};
-
 		mLoadWidgetAreas = new AsyncTask<Void,Void,RectF[]> () {
 			@Override
 			protected RectF[] doInBackground(Void... arg0) {
@@ -662,7 +643,8 @@ public class MuPDFPageView extends PageView implements MuPDFView {
 			@Override
 			protected void onPostExecute(RectF[] result) {
 				mWidgetAreas = result;
-				handler.sendEmptyMessage(page);
+				if(handler != null)
+				    handler.sendEmptyMessage(page);
 			}
 		};
 
