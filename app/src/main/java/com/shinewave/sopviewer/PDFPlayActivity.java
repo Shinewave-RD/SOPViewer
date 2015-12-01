@@ -2,6 +2,7 @@ package com.shinewave.sopviewer;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -34,7 +35,7 @@ public class PDFPlayActivity extends AppCompatActivity {
     private TextView         mPageNumberView;
     private TextView         mInfoView;
     private boolean          mButtonsVisible;
-    final Handler            handler = new Handler();
+    private Handler            handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +76,21 @@ public class PDFPlayActivity extends AppCompatActivity {
                 }
             };
 
-            mDocView.setAdapter(new MuPDFPageAdapter(this, null, core));
+            handler = new Handler() {
+
+                public void handleMessage(Message msg) {
+                    System.out.println("---------------------------="+msg.what);
+                    if(msg.what > 0) {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (Exception e) {
+                        }
+                        mDocView.moveToNext();
+                    }
+                }
+            };
+
+            mDocView.setAdapter(new MuPDFPageAdapter(this, null, core, handler));
         }
 
         int smax = Math.max(core.countPages()-1,1);
@@ -100,6 +115,7 @@ public class PDFPlayActivity extends AppCompatActivity {
         layout.addView(mButtonsView);
         setContentView(layout);
 
+        /*
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
 
@@ -116,6 +132,7 @@ public class PDFPlayActivity extends AppCompatActivity {
             }
 
         };
+        */
         //timer.schedule(timerTask, 5000, 5000);
 
         //setContentView(R.layout.activity_pdfplay);
