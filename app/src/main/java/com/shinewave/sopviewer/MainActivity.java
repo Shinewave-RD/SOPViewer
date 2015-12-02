@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity
         //Fragment fragmentBtn = PlaceholderFragment.newInstance(position + 1);
         switch (position + 1) {
             case 1:
-                fragment = FileMamagerFragment.newInstance(position + 1, "");
+                fragment = FileMamagerFragment.newInstance(position + 1, id);
                 //fragmentBtn = FileBtnFragment.newInstance("", "");
                 break;
             case 2:
@@ -86,6 +86,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case 5:
                 fragment = RemoteFileManagerFragment.newInstance(position + 1, id);
+                break;
+            case 6:
+                fragment = PlayItemFragment.newInstance(position + 1, id);
                 break;
         }
         fragmentManager.beginTransaction()
@@ -112,6 +115,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case 5:
                 mTitle = getString(R.string.nav_5_remote_file_manager);
+                break;
+            case 6:
+                mTitle = getString(R.string.nav_6_play_item);
                 break;
         }
     }

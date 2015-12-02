@@ -45,10 +45,13 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
         holder.playItem = items.get(position);
         holder.deleteButton = (ImageButton) row.findViewById(R.id.btn_Delete);
         holder.deleteButton.setTag(holder.playItem);
+        holder.deleteButton.setOnClickListener(new ItemButtonDelete_Click(position));
 
         holder.fileButton = (Button) row.findViewById(R.id.ItemButton_Flie);
         holder.fileButton.setTag(holder.playItem);
         holder.fileButton.setOnClickListener(new ItemButtonFile_Click(position));
+
+        holder.lblFullPath = (TextView) row.findViewById(R.id.lbl_fullPath);
 
         holder.txtPage = (TextView) row.findViewById(R.id.txt_page);
         setPageTextChangeListener(holder);
@@ -66,8 +69,18 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
     }
 
     private void setupItem(PlayItemHolder holder) {
-        holder.txtPage.setText(holder.playItem.getlocalFullFilePath());
-        holder.txtSec.setText(String.valueOf(holder.playItem.getSeq()));
+        holder.txtPage.setText(holder.playItem.getStrPages());
+        holder.txtSec.setText(String.valueOf(holder.playItem.getSec()));
+
+        int iSlash = holder.playItem.getlocalFullFilePath().lastIndexOf('/');
+        if (iSlash > 0) {
+            String sFileName = holder.playItem.getlocalFullFilePath().substring(iSlash + 1);
+            String sPreFileName = holder.playItem.getlocalFullFilePath().substring(0, iSlash + 1);
+            holder.fileButton.setText(sFileName);
+            holder.lblFullPath.setText(sPreFileName);
+        } else {
+            holder.fileButton.setText(holder.playItem.getlocalFullFilePath());
+        }
     }
 
     public static class PlayItemHolder {
@@ -76,8 +89,7 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
         TextView txtSec;
         ImageButton deleteButton;
         Button fileButton;
-        TextView lblPage;
-        TextView lblSec;
+        TextView lblFullPath;
     }
 
     private void setPageTextChangeListener(final PlayItemHolder holder) {
@@ -85,7 +97,7 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                holder.playItem.setLocalFullFilePath(s.toString());
+                holder.playItem.setStrPages(s.toString());
             }
 
             @Override
@@ -104,7 +116,7 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 try {
-                    holder.playItem.setSeq(Integer.parseInt(s.toString()));
+                    holder.playItem.setSec(Integer.parseInt(s.toString()));
                 } catch (NumberFormatException e) {
                     //Log.e(LOG_TAG, "error reading double value: " + s.toString());
                 }
@@ -129,7 +141,28 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
 
         @Override
         public void onClick(View v) {
-            PlayItemActivity.show();
+            PlayItemFragment.nowSeq = position;
+            PlayItemFragment.nowPlayItem = getItems();
+            PlayItemFragment.inputName = PlayItemFragment.editName.getText().toString();
+            if (!PlayItemFragment.editLoop.getText().toString().equals(""))
+                PlayItemFragment.inputLoop = Integer.parseInt(PlayItemFragment.editLoop.getText().toString());
+            MainActivity ma = (MainActivity) context;
+            ma.onFragmentInteraction("FileBrowser");
+            ma.onNavigationDrawerItemSelected(0);
+        }
+    }
+
+    class ItemButtonDelete_Click implements View.OnClickListener {
+        private int position;
+
+        ItemButtonDelete_Click(int pos) {
+            position = pos;
+        }
+
+        @Override
+        public void onClick(View v) {
+            PlayListItem itemToRemove = getItem(position);
+            remove(itemToRemove);
         }
     }
 }

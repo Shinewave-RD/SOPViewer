@@ -31,7 +31,7 @@ import java.util.List;
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link IFragmentInteraction}
  * interface.
  */
 public class PlayListManagerFragment extends Fragment implements AbsListView.OnItemClickListener {
@@ -49,7 +49,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
 
     private static final String FV_NAME = "PlayListName";
     private static final String FV_PLAYLIST = "fileObject";
-    private PlayList info;
+    private String info;
     private ArrayList<HashMap<String, Object>> list_Play = new ArrayList<HashMap<String, Object>>();
 
     /**
@@ -99,7 +99,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_playlistmanager, container, false);
 
-        getPlayList();
+        getPlayListName();
 
         mAdapter = new SimpleAdapter(
                 getActivity(),
@@ -122,7 +122,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
 
             @Override
             public void onClick(View v) {
-                showPlayItemActivity(true);
+                showPlayItemFragment(true);
             }
         });
 
@@ -131,7 +131,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
 
             @Override
             public void onClick(View v) {
-                showPlayItemActivity(false);
+                showPlayItemFragment(false);
             }
         });
 
@@ -144,8 +144,8 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
                 builder.setMessage("Are you sure to delete record");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        deletePlayList(info.playListName);
-                        getPlayList();
+                        deletePlayList(info);
+                        getPlayListName();
                         mListView.clearChoices();
                         mAdapter.notifyDataSetChanged();
                     }
@@ -166,7 +166,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
 
             @Override
             public void onClick(View v) {
-                //TODO:Call PDFPlayActivity to play
+                doPlay(info);
             }
         });
 
@@ -197,7 +197,9 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            //mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            HashMap<String, Object> o = (HashMap<String, Object>) mAdapter.getItem(position);
+            info = (String) o.get(FV_NAME);
         }
     }
 
@@ -214,39 +216,20 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(String id);
+    private void showPlayItemFragment(boolean isCreate) {
+        String name = "";
+        if (!isCreate)
+            name = info;
+        MainActivity ma = (MainActivity) getActivity();
+        ma.onFragmentInteraction(PlayItemFragment.FROM_PLAY_LIST + name);
+        ma.onNavigationDrawerItemSelected(5);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String message = data.getStringExtra("MESSAGE");
-        if (resultCode == PlayItemActivity.RESULT_CODE_SAVE) {
-            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-        } else if (resultCode == PlayItemActivity.RESULT_CODE_CANCEL) {
-            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    private void showPlayItemActivity(boolean isCreate) {
-        int requestCode = isCreate ? 1 : 2;
+    private void doPlay(String pListName) {
         Intent intent = new Intent(getActivity(),
-                PlayItemActivity.class);
-
-        startActivityForResult(intent, requestCode);
+                PDFPlayActivity.class);
+        intent.putExtra("FileName", pListName);
+        startActivity(intent);
     }
 
     private void getPlayList() {
@@ -267,11 +250,25 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
         }
     }
 
-    private boolean insertPlayList(PlayList pList) {
-        return DBManager.insertPlayList(pList);
+    private void getPlayListName() {
+        list_Play.clear();
+        List<String> list = DBManager.getPlayListName();
+        try {
+            for (int i = 0; i < list.size(); i++) {
+
+                String name = list.get(i);
+                HashMap<String, Object> cItem = new HashMap<String, Object>();
+
+                cItem.put(FV_NAME, name);
+
+                list_Play.add(cItem);
+            }
+        } catch (Exception e) {
+        }
     }
 
-    private boolean deletePlayList(String pListName) {
+
+    public static boolean deletePlayList(String pListName) {
         return DBManager.deletePlayList(pListName);
     }
 

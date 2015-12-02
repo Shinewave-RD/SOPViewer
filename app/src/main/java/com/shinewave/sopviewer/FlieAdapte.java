@@ -33,7 +33,7 @@ public class FlieAdapte extends BaseAdapter {
     private ItemView itemView;
     private int nowPosition;
 
-    private boolean fromRemote = false;
+    private int fromType;
 
     private class ItemView {
         public ImageView FV_IMG;
@@ -44,10 +44,10 @@ public class FlieAdapte extends BaseAdapter {
         public Button viewBtn_Del;
     }
 
-    public FlieAdapte(Context c, ArrayList<HashMap<String, Object>> appList, int resource, String[] from, int[] to, boolean fromRemote) {
+    public FlieAdapte(Context c, ArrayList<HashMap<String, Object>> appList, int resource, String[] from, int[] to, int type) {
         mAppList = appList;
         mContext = c;
-        this.fromRemote = fromRemote;
+        fromType = type;
         this.resource = resource;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         keyString = new String[from.length];
@@ -87,19 +87,12 @@ public class FlieAdapte extends BaseAdapter {
         } else {
             convertView = mInflater.inflate(resource, null);
             itemView = new ItemView();
-            if (fromRemote) {
-                itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
-                itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
-                itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
-                itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
-            } else {
-                itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
-                itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
-                itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
-                itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
-                itemView.viewBtn_Sync = (Button) convertView.findViewById(valueViewID[4]);
-                itemView.viewBtn_Del = (Button) convertView.findViewById(valueViewID[5]);
-            }
+            itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
+            itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
+            itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
+            itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
+            itemView.viewBtn_Sync = (Button) convertView.findViewById(valueViewID[4]);
+            itemView.viewBtn_Del = (Button) convertView.findViewById(valueViewID[5]);
             convertView.setTag(itemView);
         }
 
@@ -117,8 +110,8 @@ public class FlieAdapte extends BaseAdapter {
             //itemView.File = (File) appInfo.get(keyString[6]);
             itemView.FV_IMG.setImageDrawable(itemView.FV_IMG.getResources().getDrawable(mid));
             //itemView.viewBtn.setBackgroundDrawable(itemView.ItemButton.getResources().getDrawable(bid));
-            if (!fromRemote) {
-                if (name != "BACK") {
+            if (fromType == FileMamagerFragment.FROM_MAIN_ACTIVITY) {
+                if (!name.equals("BACK")) {
                     itemView.viewBtn_Sync.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Del.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Sync.setOnClickListener(new ItemButtonSync_Click(position));
@@ -127,6 +120,9 @@ public class FlieAdapte extends BaseAdapter {
                     itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
                     itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
                 }
+            } else {
+                itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
+                itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
             }
         }
 

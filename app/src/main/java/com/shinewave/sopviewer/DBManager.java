@@ -58,7 +58,7 @@ public class DBManager {
 
     public static boolean insertFileInfo(FileInfo info) {
         boolean res = false;
-        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        SQLiteDatabase db = sopDBAccess.getWritableDatabase();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String updateString = "";
         String remoteDateString = "";
@@ -91,7 +91,7 @@ public class DBManager {
 
     public static boolean deleteFileInfo(String localFullFilePath) {
         boolean res = false;
-        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        SQLiteDatabase db = sopDBAccess.getWritableDatabase();
 
         try {
             long resLong = db.delete("SOPViewer_FileInfo", "localFullFilePath=?", new String[]{localFullFilePath});
@@ -226,7 +226,7 @@ public class DBManager {
 
     public static boolean insertConnection(ConnectionInfo conn) {
         boolean res = false;
-        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        SQLiteDatabase db = sopDBAccess.getWritableDatabase();
 
         ContentValues ctv = new ContentValues();
         ctv.put("connectionName", conn.connectionName);
@@ -248,7 +248,7 @@ public class DBManager {
 
     public static boolean deleteConnection(String connName) {
         boolean res = false;
-        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        SQLiteDatabase db = sopDBAccess.getWritableDatabase();
 
         try {
             long resLong = db.delete("SOPViewer_ConnectionInfo", "connectionName=?", new String[]{connName});
@@ -335,9 +335,63 @@ public class DBManager {
         return list;
     }
 
+    public static List<String> getPlayListName() {
+        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        List<String> list = new ArrayList<>();
+        Cursor cr = null;
+        try {
+            cr = db.rawQuery("SELECT DISTINCT playListName FROM SOPViewer_PlayList", null);
+        } catch (Exception e) {
+            //
+        }
+        if (cr != null) {
+            cr.moveToFirst();
+            for (int i = 0; i < cr.getCount(); i++) {
+                list.add(cr.getString(0));
+                cr.moveToNext();
+            }
+            cr.close();
+        }
+        db.close();
+        return list;
+    }
+
+    public static PlayList getPlayItem(String pListName) {
+        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        PlayList info = new PlayList();
+        info.playListItem = new ArrayList<>();
+        Cursor cr = null;
+        try {
+            cr = db.rawQuery("SELECT * FROM SOPViewer_PlayList WHERE playListName=? ORDER BY seq", new String[]{pListName});
+        } catch (Exception e) {
+            //
+        }
+        if (cr != null) {
+            cr.moveToFirst();
+            try {
+                for (int i = 0; i < cr.getCount(); i++) {
+                    PlayListItem item = new PlayListItem(0, "", "", null, 0);
+                    info.playListName = cr.getString(0);
+                    info.loop = cr.getInt(1);
+                    item.seq = cr.getInt(2);
+                    item.localFullFilePath = cr.getString(3);
+                    item.strPages = cr.getString(4);
+                    item.sec = cr.getInt(5);
+                    info.playListItem.add(item);
+                    cr.moveToNext();
+                }
+            } catch (Exception e) {
+                Log.d(TAG, e.getMessage());
+            }
+            cr.close();
+        }
+        db.close();
+        return info;
+    }
+
     public static boolean insertPlayList(PlayList pList) {
         boolean res = false;
-        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        SQLiteDatabase db = sopDBAccess.getWritableDatabase();
 
         ContentValues ctv = new ContentValues();
         for (PlayListItem item : pList.playListItem) {
@@ -361,7 +415,7 @@ public class DBManager {
 
     public static boolean deletePlayList(String pListName) {
         boolean res = false;
-        SQLiteDatabase db = sopDBAccess.getReadableDatabase();
+        SQLiteDatabase db = sopDBAccess.getWritableDatabase();
 
         try {
             long resLong = db.delete("SOPViewer_PlayList", "playListName=?", new String[]{pListName});

@@ -50,7 +50,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String ARG_PARAM2 = "param2";
     // TODO: Rename and change types of parameters
     private int mParam1;
-    private String mParam2;
+    private int mParam2;
 
     private static final String FV_IMAGE = "image";
     private static final String FV_FILE_NAME = "fileName";
@@ -60,6 +60,12 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String FV_SyncBtn = "sync";
     private static final String FV_DelBtn = "delete";
 
+    public static final int FROM_MAIN_ACTIVITY = 0;
+    public static final int FROM_REMOTE = 1;
+    public static final int FROM_PLAY_ITEM = 2;
+
+    private Button btnSynaAll;
+    private Button btnCreate;
     public static String nowPath;
     public static List<FileInfo> FileInfolist;
     private static Context ctext;
@@ -78,13 +84,18 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
      */
     private FlieAdapte mAdapter;
     private static ArrayList<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
+    private String fileName;
 
     // TODO: Rename and change types of parameters
     public static FileMamagerFragment newInstance(int param1, String param2) {
         FileMamagerFragment fragment = new FileMamagerFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        if (param2 != null && param2.equals("FileBrowser")) {
+            args.putInt(ARG_PARAM2, FROM_PLAY_ITEM);
+        } else {
+            args.putInt(ARG_PARAM2, FROM_MAIN_ACTIVITY);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -102,7 +113,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         ctext = getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mParam2 = getArguments().getInt(ARG_PARAM2);
         }
 
         // TODO: Change Adapter to display your content
@@ -129,8 +140,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         R.id.fv_textViewLastestDT,
                         R.id.ItemButton_Sync,
                         R.id.ItemButton_Del},
-                false
+                mParam2
         );
+
     }
 
     @Override
@@ -146,21 +158,32 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
-        Button btnCreate = (Button) view.findViewById(R.id.createBtn);
+        btnCreate = (Button) view.findViewById(R.id.createBtn);
+        btnSynaAll = (Button) view.findViewById(R.id.syncAllBtn);
+
+        if (mParam2 == FileMamagerFragment.FROM_PLAY_ITEM) {
+            btnCreate.setText("Cancel");
+            btnSynaAll.setText("Select");
+        }
         btnCreate.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                showCreateFolderDialog();
+                if (mParam2 == FileMamagerFragment.FROM_PLAY_ITEM)
+                    backPlayItem();
+                else
+                    showCreateFolderDialog();
             }
         });
 
-        Button btnEdit = (Button) view.findViewById(R.id.syncAllBtn);
-        btnEdit.setOnClickListener(new View.OnClickListener() {
+        btnSynaAll.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                showSyncDialog();
+                if (mParam2 == FileMamagerFragment.FROM_PLAY_ITEM)
+                    backPlayItemWithFileName(fileName);
+                else
+                    showSyncDialog();
             }
         });
         return view;
@@ -194,6 +217,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             try {
                 HashMap<String, Object> o = (HashMap<String, Object>) mAdapter.getItem(position);
                 File sf = (File) o.get(FV_File);
+                fileName = sf.getAbsolutePath();
                 if (sf.isDirectory()) {
                     setupFileList(list, FileInfolist, sf.getAbsolutePath());
 
@@ -433,5 +457,17 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                 DBManager.updateFileInfo(info);
             }
         }
+    }
+
+    private void backPlayItem() {
+        MainActivity ma = (MainActivity) getActivity();
+        ma.onFragmentInteraction(PlayItemFragment.FROM_FILE_CANCEL);
+        ma.onNavigationDrawerItemSelected(5);
+    }
+
+    private void backPlayItemWithFileName(String fInfo) {
+        MainActivity ma = (MainActivity) getActivity();
+        ma.onFragmentInteraction(fInfo);
+        ma.onNavigationDrawerItemSelected(5);
     }
 }

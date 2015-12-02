@@ -117,7 +117,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                         R.id.fv_textViewFile,
                         R.id.fv_textViewConn,
                         R.id.fv_textViewLastestDT},
-                true
+                FileMamagerFragment.FROM_REMOTE
         );
 
 
