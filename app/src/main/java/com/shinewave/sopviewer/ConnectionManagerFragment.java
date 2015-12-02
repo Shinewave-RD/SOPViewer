@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 //import android.app.Fragment;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,9 +21,13 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.ServerConnectionInfo;
+import com.artifex.mupdfdemo.AsyncTask;
 import com.shinewave.sopviewer.dummy.DummyContent;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -373,5 +378,23 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         }
 
         return list;
+    }
+
+    public static boolean createConnection(List<ServerConnectionInfo> connectionInfo)
+    {
+        try {
+            for (int i = 0; i < connectionInfo.size(); i++) {
+                ServerConnectionInfo sInfo = connectionInfo.get(i);
+                if (ConnectionInfo.ProtocolType.FTP.toInt() == sInfo.protocol)
+                    new ServerDownloadFtpFile().execute(sInfo);
+                else if (ConnectionInfo.ProtocolType.SMB.toInt() == sInfo.protocol)
+                    new ServerDownloadSmbFile().execute(sInfo);
+            }
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
     }
 }
