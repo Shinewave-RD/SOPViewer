@@ -270,30 +270,32 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
     private boolean pageValidate(List<PlayListItem> pItem) {
         boolean isValidated = true;
         for (PlayListItem item : pItem) {
-            if (!item.getStrPages().contains(".")) {
-                String[] tmpArr = item.getStrPages().trim().split(",");
-                for (String tmp : tmpArr) {
-                    if (tmp.contains("-")) {
-                        try {
-                            String[] intArr = tmp.trim().split("-", 2);
-                            int start = Integer.parseInt(intArr[0]);
-                            int end = Integer.parseInt(intArr[1]);
-                        } catch (Exception e) {
-                            isValidated = false;
-                            break;
-                        }
-                    } else {
-                        try {
-                            int page = Integer.parseInt(tmp.trim());
-                        } catch (Exception e) {
-                            isValidated = false;
-                            break;
+            if (!item.getStrPages().trim().equals("")) {
+                if (!item.getStrPages().contains(".")) {
+                    String[] tmpArr = item.getStrPages().trim().split(",");
+                    for (String tmp : tmpArr) {
+                        if (tmp.contains("-")) {
+                            try {
+                                String[] intArr = tmp.trim().split("-", 2);
+                                int start = Integer.parseInt(intArr[0]);
+                                int end = Integer.parseInt(intArr[1]);
+                            } catch (Exception e) {
+                                isValidated = false;
+                                break;
+                            }
+                        } else {
+                            try {
+                                int page = Integer.parseInt(tmp.trim());
+                            } catch (Exception e) {
+                                isValidated = false;
+                                break;
+                            }
                         }
                     }
+                } else {
+                    isValidated = false;
+                    break;
                 }
-            } else {
-                isValidated = false;
-                break;
             }
         }
         return isValidated;
