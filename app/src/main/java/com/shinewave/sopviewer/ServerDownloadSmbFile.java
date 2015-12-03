@@ -2,7 +2,7 @@ package com.shinewave.sopviewer;
 
 import android.os.Environment;
 
-import com.ServerConnectionInfo;
+import com.shinewave.sopviewer.ServerConnectionInfo;
 import com.artifex.mupdfdemo.AsyncTask;
 
 import java.io.File;

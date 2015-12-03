@@ -1,7 +1,7 @@
-package com;
+package com.shinewave.sopviewer;
 
 /**
- * Created by user on 2015/12/2.
+ * Created by user on 2015/12/3.
  */
 public class ServerConnectionInfo {
     public String connectionName;
