@@ -241,6 +241,13 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                     showDialog(dialogMsg);
                     return;
                 }
+
+                if (adapter.getItems() == null || adapter.getItems().size() == 0) {
+                    dialogMsg = "請加入播放項目";
+                    showDialog(dialogMsg);
+                    return;
+                }
+
                 PlayList pList = new PlayList();
                 pList.playListName = editName.getText().toString();
                 pList.loop = Integer.parseInt(editLoop.getText().toString());
