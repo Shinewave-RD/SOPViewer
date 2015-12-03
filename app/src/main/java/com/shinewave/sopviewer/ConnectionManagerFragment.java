@@ -21,7 +21,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.ServerConnectionInfo;
+import com.shinewave.sopviewer.ServerConnectionInfo;
 import com.artifex.mupdfdemo.AsyncTask;
 import com.shinewave.sopviewer.dummy.DummyContent;
 
