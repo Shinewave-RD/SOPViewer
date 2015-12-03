@@ -15,13 +15,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -117,7 +115,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
         editName = (EditText) view.findViewById(R.id.txt_Name);
         editLoop = (EditText) view.findViewById(R.id.txt_Loop);
 
-        setupListViewAdapter(view);
+        setupListViewAdapter();
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
@@ -174,20 +172,14 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
         }
     }
 
-    public void removeClickHandler(View v) {
-        PlayListItem itemToRemove = (PlayListItem) v.getTag();
-        adapter.remove(itemToRemove);
-    }
-
-    private void setupListViewAdapter(View v) {
-        PlayList pList = new PlayList();
+    private void setupListViewAdapter() {
         List<PlayListItem> pItemList = new ArrayList<>();
 
         if (mParam2.startsWith(FROM_PLAY_LIST)) {
             nowPlayItem = null;
             if (playName != null && !playName.equals("")) {
                 try {
-                    pList = getPlayItem(playName);
+                    PlayList pList = getPlayItem(playName);
                     editName.setText(pList.playListName);
                     editLoop.setText(String.valueOf(pList.loop));
                     pItemList = pList.playListItem;

@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
 
@@ -48,7 +47,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
     private IFragmentInteraction mListener;
 
     private static final String FV_NAME = "PlayListName";
-    private static final String FV_PLAYLIST = "fileObject";
+    //private static final String FV_PLAYLIST = "fileObject";
     private String info;
     private ArrayList<HashMap<String, Object>> list_Play = new ArrayList<HashMap<String, Object>>();
 
@@ -230,24 +229,6 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
                 PDFPlayActivity.class);
         intent.putExtra("PlayListName", pListName);
         startActivity(intent);
-    }
-
-    private void getPlayList() {
-        list_Play.clear();
-        List<PlayList> list = DBManager.getPlayList();
-        try {
-            for (int i = 0; i < list.size(); i++) {
-
-                PlayList info = list.get(i);
-                HashMap<String, Object> cItem = new HashMap<String, Object>();
-
-                cItem.put(FV_NAME, info.playListName);
-                cItem.put(FV_PLAYLIST, info);
-
-                list_Play.add(cItem);
-            }
-        } catch (Exception e) {
-        }
     }
 
     private void getPlayListName() {
