@@ -26,10 +26,6 @@
             android:name=".PDFPlayActivity"
             android:label="@string/title_activity_pdfplay" >
         </activity>
-        <activity
-            android:name=".PlayItemActivity"
-            android:label="@string/title_activity_pdfplay" >
-        </activity>
     </application>
 
 </manifest>

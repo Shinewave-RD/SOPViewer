@@ -322,9 +322,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             }
         }
         if (syncList.size() > 0) {
-            List<FileInfo> resList = new ArrayList<>();
             //TODO:call ConnectionManager Sync()
-            resList = ConnectionManagerFragment.doSync(syncList); //james add
+            List<FileInfo> resList = ConnectionManagerFragment.doSync(syncList); //james add
 
             updateFileInfo(resList);
 
@@ -417,10 +416,6 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
 
     private static void getFileList() {
         FileInfolist = DBManager.getFileInfo();
-    }
-
-    public static boolean insertFileInfo(FileInfo fInfo) {
-        return DBManager.insertFileInfo(fInfo);
     }
 
     public static void deleteFileInfo(String pathName) {

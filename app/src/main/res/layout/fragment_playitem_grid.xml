@@ -35,6 +35,8 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="2"
                     android:gravity="center_vertical"
+                    android:singleLine="true"
+                    android:maxLength="30"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <TextView
@@ -43,6 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Loop"
+                    android:maxLength="30"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <EditText

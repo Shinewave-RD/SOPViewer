@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import java.util.List;
  */
 public class PlayItemFragment extends Fragment implements AbsListView.OnItemClickListener {
 
+    protected static final String TAG = PlayItemFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -97,7 +100,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                 try {
                     playName = mParam2.substring(FROM_PLAY_LIST.length());
                 } catch (Exception e) {
-                    //
+                    Log.d(TAG, e.getMessage());
                 }
             }
         }
@@ -114,6 +117,8 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
 
         editName = (EditText) view.findViewById(R.id.txt_Name);
         editLoop = (EditText) view.findViewById(R.id.txt_Loop);
+
+        editName.setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
 
         setupListViewAdapter();
 
@@ -184,6 +189,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                     editLoop.setText(String.valueOf(pList.loop));
                     pItemList = pList.playListItem;
                 } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
                 }
             }
         } else if (mParam2.equals(FROM_FILE_CANCEL)) {

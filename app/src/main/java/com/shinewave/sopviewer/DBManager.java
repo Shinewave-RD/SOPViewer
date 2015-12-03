@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/*
  * Created by user on 2015/10/28.
  */
 public class DBManager {
@@ -278,7 +278,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d(TAG, e.getMessage());
         }
 
         db.close();
@@ -294,7 +294,7 @@ public class DBManager {
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_PlayList ORDER BY playListName", null);
         } catch (Exception e) {
-            //
+            Log.d(TAG, e.getMessage());
         }
         if (cr != null) {
             cr.moveToFirst();
@@ -325,7 +325,7 @@ public class DBManager {
                     }
                     cr.moveToNext();
                 } catch (Exception e) {
-                    //
+                    Log.d(TAG, e.getMessage());
                 }
             }
             cr.close();
@@ -342,7 +342,7 @@ public class DBManager {
         try {
             cr = db.rawQuery("SELECT DISTINCT playListName FROM SOPViewer_PlayList", null);
         } catch (Exception e) {
-            //
+            Log.d(TAG, e.getMessage());
         }
         if (cr != null) {
             cr.moveToFirst();
@@ -364,7 +364,7 @@ public class DBManager {
         try {
             cr = db.rawQuery("SELECT * FROM SOPViewer_PlayList WHERE playListName=? ORDER BY seq", new String[]{pListName});
         } catch (Exception e) {
-            //
+            Log.d(TAG, e.getMessage());
         }
         if (cr != null) {
             cr.moveToFirst();
@@ -406,7 +406,7 @@ public class DBManager {
                 if (resLong >= 0)
                     res = true;
             } catch (Exception e) {
-                //
+                Log.d(TAG, e.getMessage());
             }
         }
         db.close();
@@ -422,7 +422,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d(TAG, e.getMessage());
         }
 
         db.close();
@@ -441,7 +441,7 @@ public class DBManager {
             if (resLong >= 0)
                 res = true;
         } catch (Exception e) {
-            //
+            Log.d(TAG, e.getMessage());
         }
 
         db.close();

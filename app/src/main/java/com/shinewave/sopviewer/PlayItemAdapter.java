@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import android.widget.TextView;
 import java.io.Serializable;
 import java.util.List;
 
-/**
+/*
  * Created by user on 2015/11/24.
  */
 public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
@@ -117,7 +118,7 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
                 try {
                     holder.playItem.setSec(Integer.parseInt(s.toString()));
                 } catch (NumberFormatException e) {
-                    //Log.e(LOG_TAG, "error reading double value: " + s.toString());
+                    Log.d(TAG, e.getMessage());
                 }
             }
 

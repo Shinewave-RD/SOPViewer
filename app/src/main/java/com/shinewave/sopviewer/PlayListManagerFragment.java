@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import java.util.List;
  */
 public class PlayListManagerFragment extends Fragment implements AbsListView.OnItemClickListener {
 
+    protected static final String TAG = PlayItemFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -245,6 +247,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
                 list_Play.add(cItem);
             }
         } catch (Exception e) {
+            Log.d(TAG, e.getMessage());
         }
     }
 
