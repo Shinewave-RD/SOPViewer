@@ -228,7 +228,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
     private void doPlay(String pListName) {
         Intent intent = new Intent(getActivity(),
                 PDFPlayActivity.class);
-        intent.putExtra("FileName", pListName);
+        intent.putExtra("PlayListName", pListName);
         startActivity(intent);
     }
 

@@ -87,12 +87,22 @@ public class FlieAdapte extends BaseAdapter {
         } else {
             convertView = mInflater.inflate(resource, null);
             itemView = new ItemView();
-            itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
-            itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
-            itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
-            itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
-            itemView.viewBtn_Sync = (Button) convertView.findViewById(valueViewID[4]);
-            itemView.viewBtn_Del = (Button) convertView.findViewById(valueViewID[5]);
+            if (fromType == FileMamagerFragment.FROM_MAIN_ACTIVITY)
+            {
+                itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
+                itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
+                itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
+                itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
+                itemView.viewBtn_Sync = (Button) convertView.findViewById(valueViewID[4]);
+                itemView.viewBtn_Del = (Button) convertView.findViewById(valueViewID[5]);
+            }
+            else
+            {
+                itemView.FV_IMG = (ImageView) convertView.findViewById(valueViewID[0]);
+                itemView.FV_FileName = (TextView) convertView.findViewById(valueViewID[1]);
+                itemView.FV_CONN = (TextView) convertView.findViewById(valueViewID[2]);
+                itemView.FV_UPDATE_Date = (TextView) convertView.findViewById(valueViewID[3]);
+            }
             convertView.setTag(itemView);
         }
 
@@ -120,10 +130,11 @@ public class FlieAdapte extends BaseAdapter {
                     itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
                     itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
                 }
-            } else {
-                itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
-                itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
             }
+            //else {
+            //    itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
+            //    itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
+            //}
         }
 
         return convertView;

@@ -22,8 +22,14 @@ public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integ
     {
         try {
             info = params[0];
-            String tmpPath = info.fullFilePath.substring(0, info.fullFilePath.lastIndexOf("/"));
-            String fileName = info.fullFilePath.substring(info.fullFilePath.lastIndexOf("/"));
+            int lastSlashPos = info.fullFilePath.lastIndexOf('/');
+            String tmpPath = new String(lastSlashPos == -1
+                    ? "/"
+                    : info.fullFilePath.substring(0, lastSlashPos));
+            String fileName = new String(lastSlashPos == -1
+                    ? info.fullFilePath
+                    : info.fullFilePath.substring(lastSlashPos+1));
+
             ftpClient = new FTPClient();
             ftpClient.connect(info.url);
             ftpClient.login(info.id, info.password);
