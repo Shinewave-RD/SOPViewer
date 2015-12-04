@@ -1,6 +1,8 @@
 package com.shinewave.sopviewer;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import com.artifex.mupdfdemo.MuPDFReaderView;
 import com.artifex.mupdfdemo.MuPDFView;
 import com.artifex.mupdfdemo.OutlineActivityData;
 
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,25 +36,22 @@ public class PDFPlayActivity extends AppCompatActivity {
     private SeekBar          mPageSlider;
     private int              mPageSliderRes;
     private TextView         mPageNumberView;
-    private TextView         mInfoView;
     private boolean          mButtonsVisible;
-    private Handler            handler;
+    private Handler          handler;
+    private int              playItemCount = 0;
+    private PlayList         plist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mButtonsView = getLayoutInflater().inflate(R.layout.buttons,null);
-        mPageSlider = (SeekBar)mButtonsView.findViewById(R.id.pageSlider);
-        mPageNumberView = (TextView)mButtonsView.findViewById(R.id.pageNumber);
-        mInfoView = (TextView)mButtonsView.findViewById(R.id.info);
+        mButtonsView = getLayoutInflater().inflate(R.layout.buttons, null);
+        //mPageSlider = (SeekBar) mButtonsView.findViewById(R.id.pageSlider);
+        //mPageNumberView = (TextView) mButtonsView.findViewById(R.id.pageNumber);
 
-        mFileName = getIntent().getStringExtra("FileName");
-
-        core = openFile(mFileName);
-
-        if(core != null)
-        {
+        String playListName = getIntent().getStringExtra("PlayListName");
+        plist = DBManager.getPlayItem(playListName);
+        if(plist != null && plist.playListItem.size() > 0) {
             mDocView = new MuPDFReaderView(this) {
                 @Override
                 protected void onMoveToChild(int i) {
@@ -77,63 +77,100 @@ public class PDFPlayActivity extends AppCompatActivity {
                 }
             };
 
-            handler = new Handler() {
+            RelativeLayout layout = new RelativeLayout(this);
+            layout.addView(mDocView);
+            layout.addView(mButtonsView);
+            setContentView(layout);
 
-                Timer timer;
-                public void handleMessage(Message msg) {
-
-
-                    if(msg.what > 0) {
-                        if(timer != null) {
-                            timer.cancel();
-                            timer.purge();
-                            timer = null;
-                        }
-                        timer = new Timer();
-                        TimerTask timerTask = new TimerTask() {
-
-                            public void run() {
-
-                                handler.post(new Runnable() {
-
-                                    public void run() {
-                                        mDocView.moveToNext();
-                                    }
-
-                                });
-                            }
-                        };
-                        timer.schedule(timerTask, 20000);
-                    }
-                }
-            };
-
-            mDocView.setAdapter(new MuPDFPageAdapter(this, null, core, handler));
+            setup();
         }
+        else
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Error!!");
+            builder.setMessage("Play list include no play item !!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            builder.create().show();
+        }
+    }
 
-        int smax = Math.max(core.countPages()-1,1);
-        mPageSliderRes = ((10 + smax - 1)/smax) * 2;
+    private void setup() {
 
-        // Activate the seekbar
-        mPageSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                mDocView.setDisplayedViewIndex((seekBar.getProgress()+mPageSliderRes/2)/mPageSliderRes);
+        if(playItemCount >= plist.playListItem.size())
+            return;
+
+        final PlayListItem pItem = plist.playListItem.get(playItemCount);
+        if(pItem != null) {
+            mPageSlider = (SeekBar) mButtonsView.findViewById(R.id.pageSlider);
+            mPageNumberView = (TextView) mButtonsView.findViewById(R.id.pageNumber);
+
+            playItemCount++;
+            core = null;
+            core = openFile(pItem.getlocalFullFilePath());
+            if (core != null) {
+                handler = null;
+                handler = new Handler() {
+                    Timer timer;
+                    public int a = 0;
+                    public void handleMessage(Message msg) {
+                        if (msg.what > 0) {
+                            a++;
+                            if (timer != null) {
+                                timer.cancel();
+                                timer.purge();
+                                timer = null;
+                            }
+                            timer = new Timer();
+                            TimerTask timerTask = new TimerTask() {
+
+                                public void run() {
+
+                                    handler.post(new Runnable() {
+
+                                        public void run() {
+                                            mDocView.moveToNext();
+                                            int idx = mDocView.getDisplayedViewIndex();
+                                            System.out.println("AAAAA=" + idx + "," + core.countPages() + "," + mDocView.getAdapter().getCount());
+                                            if (0 <= idx && idx+1 >= core.countPages()-1)
+                                                setup();
+
+                                        }
+                                    });
+                                }
+                            };
+                            timer.schedule(timerTask, pItem.sec * 1000);
+                        }
+                    }
+                };
+
+                mDocView.setAdapter(new MuPDFPageAdapter(this, null, core, handler));
+                updatePageNumView(0);
+                mPageSlider.setMax((core.countPages()-1)*mPageSliderRes);
+                mPageSlider.setProgress(0);
+                mDocView.refresh(false);
             }
 
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            int smax = Math.max(core.countPages() - 1, 1);
+            mPageSliderRes = ((10 + smax - 1) / smax) * 2;
 
-            public void onProgressChanged(SeekBar seekBar, int progress,
-                                          boolean fromUser) {
-                updatePageNumView((progress+mPageSliderRes/2)/mPageSliderRes);
-            }
-        });
+            // Activate the seekbar
+            mPageSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    mDocView.setDisplayedViewIndex((seekBar.getProgress() + mPageSliderRes / 2) / mPageSliderRes);
+                }
 
-        RelativeLayout layout = new RelativeLayout(this);
-        layout.addView(mDocView);
-        layout.addView(mButtonsView);
-        setContentView(layout);
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
-        //setContentView(R.layout.activity_pdfplay);
+                public void onProgressChanged(SeekBar seekBar, int progress,
+                                              boolean fromUser) {
+                    updatePageNumView((progress + mPageSliderRes / 2) / mPageSliderRes);
+                }
+            });
+        }
     }
 
     @Override
@@ -163,11 +200,6 @@ public class PDFPlayActivity extends AppCompatActivity {
 
     private MuPDFCore openFile(String path)
     {
-        int lastSlashPos = path.lastIndexOf('/');
-        mFileName = new String(lastSlashPos == -1
-                ? path
-                : path.substring(lastSlashPos+1));
-        System.out.println("Trying to open " + path);
         try
         {
             core = new MuPDFCore(this, path);
@@ -241,4 +273,15 @@ public class PDFPlayActivity extends AppCompatActivity {
             return;
         mPageNumberView.setText(String.format("%d / %d", index + 1, core.countPages()));
     }
+
+    private int[] parseStringRange(String str){
+        str = "3,4,5,8,10-20,1,2";
+        String[] a = str.split(str);
+        for(int i = 0; i < a.length; i++)
+        {
+            System.out.println(a[i]);
+        }
+        return null;
+    }
+
 }
