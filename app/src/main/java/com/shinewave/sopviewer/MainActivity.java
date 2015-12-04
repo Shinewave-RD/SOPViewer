@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        /*
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity
             getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
-        }
+        }*/
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity
     public void onFragmentInteraction(String id) {
         this.id = id;
     }
+
 
     /**
      * A placeholder fragment containing a simple view.

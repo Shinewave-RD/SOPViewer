@@ -253,7 +253,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                 pList.loop = Integer.parseInt(editLoop.getText().toString());
                 pList.playListItem = adapter.getItems();
                 if (!pageValidate(pList.playListItem)) {
-                    dialogMsg = "Page不能為空白，且內容僅能包含','和'-'和'數字'";
+                    dialogMsg = "Page內容僅能包含','和'-'和'數字'";
                     showDialog(dialogMsg);
                 } else if (!fileValidate(pList.playListItem)) {
                     dialogMsg = "請選擇檔案";
