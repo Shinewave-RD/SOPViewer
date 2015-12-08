@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shinewave.sopviewer.dummy.DummyContent;
 
@@ -133,7 +134,11 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
 
             @Override
             public void onClick(View v) {
-                showPlayItemFragment(false);
+                if (info != null && !info.equals("")) {
+                    showPlayItemFragment(false);
+                } else {
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_select_item), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -141,25 +146,29 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(ctext.getString(R.string.dialog_alter));
-                builder.setMessage(ctext.getString(R.string.dialog_delete_record));
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        deletePlayList(info);
-                        getPlayListName();
-                        mListView.clearChoices();
-                        mAdapter.notifyDataSetChanged();
-                    }
-                });
+                if (info != null && !info.equals("")) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(ctext.getString(R.string.dialog_alter));
+                    builder.setMessage(ctext.getString(R.string.dialog_delete_record));
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            deletePlayList(info);
+                            getPlayListName();
+                            mListView.clearChoices();
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
 
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
 
-                    }
-                });
+                        }
+                    });
 
-                builder.create().show();
+                    builder.create().show();
+                } else {
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_select_item), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -168,7 +177,11 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
 
             @Override
             public void onClick(View v) {
-                doPlay(info);
+                if (info != null && !info.equals("")) {
+                    doPlay(info);
+                } else {
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_select_item), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

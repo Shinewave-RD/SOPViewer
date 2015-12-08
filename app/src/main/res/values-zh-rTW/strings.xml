@@ -68,7 +68,8 @@
     <string name="dialog_sync_succeed">同步成功</string>
     <string name="dialog_sync_failed">同步失敗</string>
     <string name="dialog_folder_exist">資料夾已存在</string>
-    <string name="dialog_delete_succeed">刪除失敗</string>
+    <string name="dialog_delete_succeed">刪除成功</string>
     <string name="dialog_delete_failed">刪除失敗</string>
     <string name="dialog_delete_record">確定要刪除?</string>
+    <string name="dialog_select_item">請選擇項目</string>
 </resources>
