@@ -192,8 +192,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         super.onAttach(activity);
         try {
             mListener = (IFragmentInteraction) activity;
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_PARAM1));
+            int par = getArguments().getInt(ARG_PARAM2) == FROM_PLAY_ITEM ? 7 : getArguments().getInt(ARG_PARAM1);
+            ((MainActivity) activity).onSectionAttached(par);
+            ((MainActivity) activity).restoreActionBar();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -272,40 +273,41 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             File f = new File(path);
             File file[] = f.listFiles();
             Log.d(TAG, "Size: " + file.length);
-
-            for (int i = 0; i < file.length; i++) {
-                Log.d(TAG, "FileName:" + file[i].getName());
-                File f1 = file[i];
-                if (!f1.canRead() || (!f1.isDirectory() && !f1.getName().toLowerCase().endsWith("pdf")))
-                    continue;
-                fItem = new HashMap<String, Object>();
-                boolean isUpdate = false;
-                if (fInfo != null) {
-                    for (FileInfo item : fInfo) {
-                        if (item.localFullFilePath.equals(f1.getAbsolutePath())) {
-                            fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + item.connectionName);
+            if (file.length > 0) {
+                for (int i = 0; i < file.length; i++) {
+                    Log.d(TAG, "FileName:" + file[i].getName());
+                    File f1 = file[i];
+                    if (!f1.canRead() || (!f1.isDirectory() && !f1.getName().toLowerCase().endsWith("pdf")))
+                        continue;
+                    fItem = new HashMap<String, Object>();
+                    boolean isUpdate = false;
+                    if (fInfo != null) {
+                        for (FileInfo item : fInfo) {
+                            if (item.localFullFilePath.equals(f1.getAbsolutePath())) {
+                                fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + item.connectionName);
+                                fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
+                                        sdf.format(item.updateTime));
+                                isUpdate = true;
+                            }
+                        }
+                        if (!isUpdate) {
+                            fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + ctext.getString(R.string.label_local));
                             fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
-                                    sdf.format(item.updateTime));
-                            isUpdate = true;
+                                    sdf.format(new Date(f1.lastModified())));
                         }
                     }
-                    if (!isUpdate) {
-                        fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + ctext.getString(R.string.label_local));
-                        fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
-                                sdf.format(new Date(f1.lastModified())));
-                    }
+
+                    fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
+                    fItem.put(FV_FILE_NAME, f1.getName());
+                    fItem.put(FV_SyncBtn, ctext.getString(R.string.label_sync));
+                    fItem.put(FV_DelBtn, ctext.getString(R.string.label_delete));
+                    fItem.put(FV_File, f1);
+
+                    list.add(fItem);
                 }
-
-                fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
-                fItem.put(FV_FILE_NAME, f1.getName());
-                fItem.put(FV_SyncBtn, ctext.getString(R.string.label_sync));
-                fItem.put(FV_DelBtn, ctext.getString(R.string.label_delete));
-                fItem.put(FV_File, f1);
-
-                list.add(fItem);
             }
         } catch (Exception e) {
-            Log.w(TAG, e.getMessage());
+            Log.w(TAG, e.getMessage() == null ? "" : e.getMessage());
         }
     }
 
@@ -327,7 +329,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
 
             for (FileInfo info : resList) {
                 if (!info.syncSucceed)
-                    failName.append(info.localFullFilePath).append(",");
+                    failName.append(info.localFullFilePath).append("---");
             }
         }
         return failName.toString();

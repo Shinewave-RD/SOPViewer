@@ -197,6 +197,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
             mListener = (IFragmentInteraction) activity;
             ((MainActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_PARAM1));
+            ((MainActivity) activity).restoreActionBar();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");

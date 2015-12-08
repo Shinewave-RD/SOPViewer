@@ -119,6 +119,9 @@ public class MainActivity extends AppCompatActivity
             case 6:
                 mTitle = getString(R.string.nav_6_play_item);
                 break;
+            case 7:
+                mTitle = getString(R.string.nav_7_file_browser);
+                break;
         }
     }
 

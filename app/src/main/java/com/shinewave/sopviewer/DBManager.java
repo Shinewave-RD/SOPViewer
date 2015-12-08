@@ -176,7 +176,7 @@ public class DBManager {
         ConnectionInfo info = null;
         Cursor cr = null;
         try {
-            cr = db.rawQuery("SELECT * FROM SOPViewer_ConnectionInfo where connectionName=" + connName, null);
+            cr = db.rawQuery("SELECT * FROM SOPViewer_ConnectionInfo where connectionName=?", new String[]{connName});
         } catch (Exception e) {
             Log.d("TAG", e.getMessage());
         }

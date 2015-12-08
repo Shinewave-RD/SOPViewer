@@ -73,4 +73,5 @@
     <string name="dialog_delete_failed">Failed</string>
     <string name="dialog_delete_record">Are you sure to delete record?</string>
     <string name="dialog_select_item">Must select one item</string>
+    <string name="nav_7_file_browser">File Browser</string>
 </resources>
