@@ -64,8 +64,6 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     public static final int FROM_REMOTE = 1;
     public static final int FROM_PLAY_ITEM = 2;
 
-    private Button btnSynaAll;
-    private Button btnCreate;
     public static String nowPath;
     public static List<FileInfo> FileInfolist;
     private static Context ctext;
@@ -91,7 +89,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         FileMamagerFragment fragment = new FileMamagerFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, param1);
-        if (param2 != null && param2.equals("FileBrowser")) {
+        if (param2 != null && param2.equals(PlayItemFragment.FILE_BROWSER)) {
             args.putInt(ARG_PARAM2, FROM_PLAY_ITEM);
         } else {
             args.putInt(ARG_PARAM2, FROM_MAIN_ACTIVITY);
@@ -158,12 +156,12 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
-        btnCreate = (Button) view.findViewById(R.id.createBtn);
-        btnSynaAll = (Button) view.findViewById(R.id.syncAllBtn);
+        Button btnCreate = (Button) view.findViewById(R.id.createBtn);
+        Button btnSyncAll = (Button) view.findViewById(R.id.syncAllBtn);
 
         if (mParam2 == FileMamagerFragment.FROM_PLAY_ITEM) {
-            btnCreate.setText("Cancel");
-            btnSynaAll.setText("Select");
+            btnCreate.setText(ctext.getString(R.string.label_cancel));
+            btnSyncAll.setText(ctext.getString(R.string.label_select));
         }
         btnCreate.setOnClickListener(new View.OnClickListener() {
 
@@ -176,7 +174,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             }
         });
 
-        btnSynaAll.setOnClickListener(new View.OnClickListener() {
+        btnSyncAll.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -292,7 +290,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         }
                     }
                     if (!isUpdate) {
-                        fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + "Local");
+                        fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + ctext.getString(R.string.label_local));
                         fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
                                 sdf.format(new Date(f1.lastModified())));
                     }
@@ -300,8 +298,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
 
                 fItem.put(FV_IMAGE, f1.isDirectory() ? R.drawable.folder_pdf : R.drawable.pdf);
                 fItem.put(FV_FILE_NAME, f1.getName());
-                fItem.put(FV_SyncBtn, "Sync");
-                fItem.put(FV_DelBtn, "Delete");
+                fItem.put(FV_SyncBtn, ctext.getString(R.string.label_sync));
+                fItem.put(FV_DelBtn, ctext.getString(R.string.label_delete));
                 fItem.put(FV_File, f1);
 
                 list.add(fItem);
@@ -339,7 +337,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View textEntryView = factory.inflate(R.layout.create_folder, null);
-        builder.setTitle("Create Folder");
+        builder.setTitle(ctext.getString(R.string.label_create_folder));
         builder.setView(textEntryView);
 
         final EditText name = (EditText) textEntryView.findViewById(R.id.txtFolderName);
@@ -356,12 +354,12 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         setupFileList(list, FileInfolist, nowPath);
                         mListView.clearChoices();
                         mAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(), "新增成功", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), ctext.getString(R.string.diolog_create_succeed), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getActivity(), "新增失敗", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), ctext.getString(R.string.diolog_create_failed), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getActivity(), "資料夾已存在", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.diolog_folder_exist), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -379,11 +377,11 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View textEntryView = factory.inflate(R.layout.message_dialog, null);
-        builder.setTitle("Warning");
+        builder.setTitle(ctext.getString(R.string.diolog_alter));
         builder.setView(textEntryView);
 
         final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
-        msg.setText("確定要同步?");
+        msg.setText(ctext.getString(R.string.diolog_sure_sync));
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -393,9 +391,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                     setupFileList(list, FileInfolist, nowPath);
                     mListView.clearChoices();
                     mAdapter.notifyDataSetChanged();
-                    Toast.makeText(getActivity(), "同步成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.diolog_sync_succeed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getActivity(), "同步失敗:" + failName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.diolog_create_failed) + ":" + failName, Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -2,6 +2,7 @@ package com.shinewave.sopviewer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,7 +53,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
     //private static final String FV_PLAYLIST = "fileObject";
     private String info;
     private ArrayList<HashMap<String, Object>> list_Play = new ArrayList<HashMap<String, Object>>();
-
+    private static Context ctext;
     /**
      * The fragment's ListView/GridView.
      */
@@ -84,7 +85,7 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ctext = getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -141,8 +142,8 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Alert!!");
-                builder.setMessage("Are you sure to delete record");
+                builder.setTitle(ctext.getString(R.string.diolog_alter));
+                builder.setMessage(ctext.getString(R.string.diolog_delete_record));
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         deletePlayList(info);
@@ -250,7 +251,6 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
             Log.d(TAG, e.getMessage());
         }
     }
-
 
     public static boolean deletePlayList(String pListName) {
         return DBManager.deletePlayList(pListName);

@@ -48,7 +48,7 @@
                         android:id="@+id/createBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Create" />
+                        android:text="@string/label_create" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -60,7 +60,7 @@
                         android:id="@+id/editBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Edit" />
+                        android:text="@string/label_edit" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -72,7 +72,7 @@
                         android:id="@+id/deleteBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Delete" />
+                        android:text="@string/label_delete" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -84,7 +84,7 @@
                         android:id="@+id/playBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Play" />
+                        android:text="@string/label_play" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

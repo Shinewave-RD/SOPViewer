@@ -190,11 +190,11 @@ public class FlieAdapte extends BaseAdapter {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         LayoutInflater factory = LayoutInflater.from(mContext);
         final View textEntryView = factory.inflate(R.layout.message_dialog, null);
-        builder.setTitle("Warning");
+        builder.setTitle(mContext.getString(R.string.diolog_alter));
         builder.setView(textEntryView);
 
         final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
-        msg.setText("若為資料夾會刪除資料夾內所有檔案，確定要刪除?");
+        msg.setText(mContext.getString(R.string.diolog_folder_delete));
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -207,9 +207,9 @@ public class FlieAdapte extends BaseAdapter {
                     FileMamagerFragment.deleteFileInfo(path);
                     FileMamagerFragment.resetListViewData();
                     notifyDataSetChanged();
-                    Toast.makeText(mContext, "刪除成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.diolog_delete_succeed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(mContext, "刪除失敗", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.diolog_delete_failed), Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -229,11 +229,11 @@ public class FlieAdapte extends BaseAdapter {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         LayoutInflater factory = LayoutInflater.from(mContext);
         final View textEntryView = factory.inflate(R.layout.message_dialog, null);
-        builder.setTitle("Warning");
+        builder.setTitle(mContext.getString(R.string.diolog_alter));
         builder.setView(textEntryView);
 
         final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
-        msg.setText("確定要同步?");
+        msg.setText(mContext.getString(R.string.diolog_sure_sync));
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -243,9 +243,9 @@ public class FlieAdapte extends BaseAdapter {
                 if (failName.equals("")) {
                     FileMamagerFragment.resetListViewData();
                     notifyDataSetChanged();
-                    Toast.makeText(mContext, "同步成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.diolog_sync_succeed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(mContext, "同步失敗:" + failName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.diolog_sync_failed) + ":" + failName, Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -60,6 +60,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
 
     public static final String FROM_PLAY_LIST = "PlayItem_";
     public static final String FROM_FILE_CANCEL = "FileBrowserCancel";
+    public static final String FILE_BROWSER = "FileBrowser";
 
     /**
      * The fragment's ListView/GridView.
@@ -92,7 +93,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ctext = getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -211,7 +212,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
 
             @Override
             public void onClick(View v) {
-                adapter.add(new PlayListItem(adapter.getItems().size(), "Press to select file", "", new ArrayList<Integer>(), 1));
+                adapter.add(new PlayListItem(adapter.getItems().size(), ctext.getString(R.string.label_select_file), "", new ArrayList<Integer>(), 1));
             }
         });
     }
@@ -224,7 +225,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                 resetValues();
 
                 MainActivity ma = (MainActivity) getActivity();
-                ma.onFragmentInteraction("PlayList");
+                ma.onFragmentInteraction(ctext.getString(R.string.nav_3_playlist));
                 ma.onNavigationDrawerItemSelected(2);
             }
         });
@@ -237,13 +238,13 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
             public void onClick(View v) {
                 String dialogMsg;
                 if (editName.getText().toString().trim().equals("") || editLoop.getText().toString().trim().equals("")) {
-                    dialogMsg = "欄位均不能空白";
+                    dialogMsg = ctext.getString(R.string.diolog_white_space);
                     showDialog(dialogMsg);
                     return;
                 }
 
                 if (adapter.getItems() == null || adapter.getItems().size() == 0) {
-                    dialogMsg = "請加入播放項目";
+                    dialogMsg = ctext.getString(R.string.diolog_add_item);
                     showDialog(dialogMsg);
                     return;
                 }
@@ -253,19 +254,24 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                 pList.loop = Integer.parseInt(editLoop.getText().toString());
                 pList.playListItem = adapter.getItems();
                 if (!pageValidate(pList.playListItem)) {
-                    dialogMsg = "Page內容僅能包含','和'-'和'數字'";
+                    dialogMsg = ctext.getString(R.string.diolog_page_msg);
                     showDialog(dialogMsg);
                 } else if (!fileValidate(pList.playListItem)) {
-                    dialogMsg = "請選擇檔案";
+                    dialogMsg = ctext.getString(R.string.diolog_select_file);
                     showDialog(dialogMsg);
                 } else {
                     PlayListManagerFragment.deletePlayList(playName);
+                    int index = 0;
+                    for (PlayListItem item : pList.playListItem) {
+                        item.setSeq(index);
+                        index++;
+                    }
                     insertPlayList(pList);
 
                     resetValues();
 
                     MainActivity ma = (MainActivity) getActivity();
-                    ma.onFragmentInteraction("PlayList");
+                    ma.onFragmentInteraction(ctext.getString(R.string.nav_3_playlist));
                     ma.onNavigationDrawerItemSelected(2);
                 }
             }
@@ -309,7 +315,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
     private boolean fileValidate(List<PlayListItem> pItem) {
         boolean isValidated = true;
         for (PlayListItem item : pItem) {
-            if (item.getlocalFullFilePath().equals("Press to select file")) {
+            if (item.getlocalFullFilePath().equals(ctext.getString(R.string.label_select_file))) {
                 isValidated = false;
                 break;
             }
@@ -319,7 +325,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
 
     private void showDialog(String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Warning");
+        builder.setTitle(ctext.getString(R.string.diolog_alter));
         builder.setMessage(msg);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {

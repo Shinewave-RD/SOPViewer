@@ -1,7 +1,9 @@
 package com.shinewave.sopviewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -147,7 +149,7 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
             if (!PlayItemFragment.editLoop.getText().toString().equals(""))
                 PlayItemFragment.inputLoop = Integer.parseInt(PlayItemFragment.editLoop.getText().toString());
             MainActivity ma = (MainActivity) context;
-            ma.onFragmentInteraction("FileBrowser");
+            ma.onFragmentInteraction(PlayItemFragment.FILE_BROWSER);
             ma.onNavigationDrawerItemSelected(0);
         }
     }
@@ -161,8 +163,23 @@ public class PlayItemAdapter extends ArrayAdapter<PlayListItem> {
 
         @Override
         public void onClick(View v) {
-            PlayListItem itemToRemove = getItem(position);
-            remove(itemToRemove);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(context.getString(R.string.diolog_alter));
+            builder.setMessage(context.getString(R.string.diolog_delete_record));
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    PlayListItem itemToRemove = getItem(position);
+                    remove(itemToRemove);
+                }
+            });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                }
+            });
+
+            builder.create().show();
         }
     }
 }

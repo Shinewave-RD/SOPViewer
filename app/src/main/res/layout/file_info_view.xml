@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="FileName"
+                android:text="@string/label_select_file"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
@@ -40,13 +40,13 @@
                 android:id="@+id/ItemButton_Sync"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="Sync" />
+                android:text="@string/label_sync" />
 
             <Button
                 android:id="@+id/ItemButton_Del"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="Delete" />
+                android:text="@string/label_delete" />
         </LinearLayout>
     </LinearLayout>
 
@@ -59,7 +59,7 @@
             android:id="@+id/fv_textViewConn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="connection1"
+            android:text="@string/label_source"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="21015/12/31"
+            android:text="@string/label_last_update"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>

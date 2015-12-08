@@ -20,7 +20,7 @@
                 android:layout_height="wrap_content"
                 android:background="#00000000"
                 android:stateListAnimator="@null"
-                android:text="Flie" />
+                android:text="@string/label_select_file" />
         </LinearLayout>
 
         <LinearLayout
@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="Page"
+                android:text="@string/label_page"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <EditText
@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="Sec"
+                android:text="@string/label_sec"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <EditText
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="sdCard"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>

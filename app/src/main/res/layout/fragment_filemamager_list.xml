@@ -47,7 +47,7 @@
                         android:id="@+id/createBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Create Folder" />
+                        android:text="@string/label_create_folder" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -59,7 +59,7 @@
                         android:id="@+id/syncAllBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Sync All" />
+                        android:text="@string/label_sync_all" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
