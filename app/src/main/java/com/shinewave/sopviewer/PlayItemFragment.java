@@ -238,13 +238,13 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
             public void onClick(View v) {
                 String dialogMsg;
                 if (editName.getText().toString().trim().equals("") || editLoop.getText().toString().trim().equals("")) {
-                    dialogMsg = ctext.getString(R.string.diolog_white_space);
+                    dialogMsg = ctext.getString(R.string.dialog_white_space);
                     showDialog(dialogMsg);
                     return;
                 }
 
                 if (adapter.getItems() == null || adapter.getItems().size() == 0) {
-                    dialogMsg = ctext.getString(R.string.diolog_add_item);
+                    dialogMsg = ctext.getString(R.string.dialog_add_item);
                     showDialog(dialogMsg);
                     return;
                 }
@@ -254,10 +254,10 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                 pList.loop = Integer.parseInt(editLoop.getText().toString());
                 pList.playListItem = adapter.getItems();
                 if (!pageValidate(pList.playListItem)) {
-                    dialogMsg = ctext.getString(R.string.diolog_page_msg);
+                    dialogMsg = ctext.getString(R.string.dialog_page_msg);
                     showDialog(dialogMsg);
                 } else if (!fileValidate(pList.playListItem)) {
-                    dialogMsg = ctext.getString(R.string.diolog_select_file);
+                    dialogMsg = ctext.getString(R.string.dialog_select_file);
                     showDialog(dialogMsg);
                 } else {
                     PlayListManagerFragment.deletePlayList(playName);
@@ -325,7 +325,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
 
     private void showDialog(String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(ctext.getString(R.string.diolog_alter));
+        builder.setTitle(ctext.getString(R.string.dialog_alter));
         builder.setMessage(msg);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {

@@ -354,12 +354,12 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         setupFileList(list, FileInfolist, nowPath);
                         mListView.clearChoices();
                         mAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(), ctext.getString(R.string.diolog_create_succeed), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_succeed), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getActivity(), ctext.getString(R.string.diolog_create_failed), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_failed), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getActivity(), ctext.getString(R.string.diolog_folder_exist), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_folder_exist), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -377,11 +377,11 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View textEntryView = factory.inflate(R.layout.message_dialog, null);
-        builder.setTitle(ctext.getString(R.string.diolog_alter));
+        builder.setTitle(ctext.getString(R.string.dialog_alter));
         builder.setView(textEntryView);
 
         final TextView msg = (TextView) textEntryView.findViewById(R.id.lblMassage);
-        msg.setText(ctext.getString(R.string.diolog_sure_sync));
+        msg.setText(ctext.getString(R.string.dialog_sure_sync));
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -391,9 +391,9 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                     setupFileList(list, FileInfolist, nowPath);
                     mListView.clearChoices();
                     mAdapter.notifyDataSetChanged();
-                    Toast.makeText(getActivity(), ctext.getString(R.string.diolog_sync_succeed), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_sync_succeed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getActivity(), ctext.getString(R.string.diolog_create_failed) + ":" + failName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_failed) + ":" + failName, Toast.LENGTH_SHORT).show();
                 }
             }
         });

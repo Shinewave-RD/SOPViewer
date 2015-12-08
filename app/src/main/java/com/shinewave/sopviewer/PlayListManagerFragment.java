@@ -142,8 +142,8 @@ public class PlayListManagerFragment extends Fragment implements AbsListView.OnI
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(ctext.getString(R.string.diolog_alter));
-                builder.setMessage(ctext.getString(R.string.diolog_delete_record));
+                builder.setTitle(ctext.getString(R.string.dialog_alter));
+                builder.setMessage(ctext.getString(R.string.dialog_delete_record));
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         deletePlayList(info);
