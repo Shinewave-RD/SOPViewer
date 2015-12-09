@@ -116,6 +116,12 @@ public class ReaderView
 			mResetLayout = true;
 			requestLayout();
 		}
+		else if(0 <= i && i == mAdapter.getCount())
+		{
+			onMoveOffChild(mCurrent);
+			mResetLayout = true;
+			requestLayout();
+		}
 	}
 
 	public void moveToNext() {
@@ -763,6 +769,11 @@ public class ReaderView
 	public void setSelection(int arg0) {
 		throw new UnsupportedOperationException(getContext().getString(R.string.not_supported));
 	}
+
+	public int getCurrent() {
+		return mCurrent;
+	}
+
 
 	private View getCached() {
 		if (mViewCache.size() == 0)

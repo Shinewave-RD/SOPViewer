@@ -40,6 +40,7 @@ public class PDFPlayActivity extends AppCompatActivity {
     private Handler          handler;
     private int              playItemCount = 0;
     private PlayList         plist;
+    private int[]            aa = {0,1,2,3,4,5,6,7,8,0,1,2,3,4,5,6,7,8};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,6 @@ public class PDFPlayActivity extends AppCompatActivity {
                     mPageNumberView.setText(String.format("%d / %d", i + 1, core.countPages()));
                     mPageSlider.setMax((core.countPages() - 1) * mPageSliderRes);
                     mPageSlider.setProgress(i * mPageSliderRes);
-                    Thread.interrupted();
                     super.onMoveToChild(i);
                 }
 
@@ -112,11 +112,13 @@ public class PDFPlayActivity extends AppCompatActivity {
             core = openFile(pItem.getlocalFullFilePath());
             if (core != null) {
                 handler = null;
+
                 handler = new Handler() {
                     Timer timer;
-                    public int a = 0;
+                    int a= 0;
                     public void handleMessage(Message msg) {
-                        if (msg.what > 0) {
+                        if (msg.what == mDocView.getCurrent()) {
+                            System.out.println("CCCCCCA=="+msg.what+","+ mDocView.getCurrent()+","+a+","+aa[a]);
                             a++;
                             if (timer != null) {
                                 timer.cancel();
@@ -131,11 +133,11 @@ public class PDFPlayActivity extends AppCompatActivity {
                                     handler.post(new Runnable() {
 
                                         public void run() {
-                                            mDocView.moveToNext();
-                                            int idx = mDocView.getDisplayedViewIndex();
-                                            System.out.println("AAAAA=" + idx + "," + core.countPages() + "," + mDocView.getAdapter().getCount());
-                                            if (0 <= idx && idx+1 >= core.countPages()-1)
-                                                setup();
+                                            mDocView.setDisplayedViewIndex(aa[a]);
+                                            //int idx = mDocView.getDisplayedViewIndex();
+                                            //System.out.println("AAAAA=" + idx + "," + core.countPages() + "," + mDocView.getAdapter().getCount());
+                                            //if (0 <= idx && idx+1 >= core.countPages()-1)
+                                            //    setup();
 
                                         }
                                     });

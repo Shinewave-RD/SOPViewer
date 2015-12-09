@@ -18,7 +18,6 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Message;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
@@ -116,7 +115,6 @@ public class MuPDFPageView extends PageView implements MuPDFView {
 	private AsyncTask<Void,Void,String> mCheckSignature;
 	private AsyncTask<Void,Void,Boolean> mSign;
 	private Runnable changeReporter;
-	private Handler handler;
 
 	public MuPDFPageView(Context c, FilePicker.FilePickerSupport filePickerSupport, MuPDFCore core, Point parentSize, Bitmap sharedHqBm, Handler handler) {
 		super(c, parentSize, sharedHqBm);
@@ -643,8 +641,6 @@ public class MuPDFPageView extends PageView implements MuPDFView {
 			@Override
 			protected void onPostExecute(RectF[] result) {
 				mWidgetAreas = result;
-				if(handler != null)
-				    handler.sendEmptyMessage(page);
 			}
 		};
 

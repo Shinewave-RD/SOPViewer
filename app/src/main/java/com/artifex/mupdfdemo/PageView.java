@@ -126,6 +126,7 @@ public abstract class PageView extends ViewGroup {
 
 	private       ProgressBar mBusyIndicator;
 	private final Handler   mHandler = new Handler();
+	protected     Handler   handler;
 
 	public PageView(Context c, Point parentSize, Bitmap sharedHqBm) {
 		super(c);
@@ -220,7 +221,7 @@ public abstract class PageView extends ViewGroup {
 		setBackgroundColor(BACKGROUND_COLOR);
 	}
 
-	public void setPage(int page, PointF size) {
+	public void setPage(final int page, PointF size) {
 		// Cancel pending render task
 		if (mDrawEntire != null) {
 			mDrawEntire.cancelAndWait();
@@ -294,6 +295,8 @@ public abstract class PageView extends ViewGroup {
 				mEntire.setImageBitmap(mEntireBm);
 				mEntire.invalidate();
 				setBackgroundColor(Color.TRANSPARENT);
+				if(handler != null)
+					handler.sendEmptyMessage(page);
 
 			}
 		};
