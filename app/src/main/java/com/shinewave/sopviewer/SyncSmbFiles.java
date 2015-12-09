@@ -41,8 +41,10 @@ public class SyncSmbFiles extends AsyncTask<FileInfo, Integer, FileInfo> {
                     fileOutputStream.close();
                     file.size = (int) size;
                     file.remoteTimeStamp = date;
+                    file.updateTime = new Date(System.currentTimeMillis());
                     file.syncSucceed = true;
                 } else {
+                    file.updateTime = new Date(System.currentTimeMillis());
                     file.syncSucceed = true; //檔案不變就不下載,算sync成功??
                 }
             } else {
