@@ -36,10 +36,10 @@ public class SyncFtpFiles extends AsyncTask<FileInfo, Integer, FileInfo> {
                     ftpClient.download(file.remoteFullFilePath, newFile);
                     file.size = (int) size;
                     file.remoteTimeStamp = date;
-                    file.updateTime = new Date(System.currentTimeMillis());
+                    //file.updateTime = new Date(System.currentTimeMillis());
                     file.syncSucceed = true;
                 } else {
-                    file.updateTime = new Date(System.currentTimeMillis());
+                    //file.updateTime = new Date(System.currentTimeMillis());
                     file.syncSucceed = true; //檔案不變就不下載,算sync成功??
                 }
             } else {

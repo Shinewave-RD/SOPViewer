@@ -10,6 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height= "50dp"
         android:layout_gravity="center_vertical"
+        android:layout_marginLeft="5dp"
+        android:singleLine="true"
         android:text="@string/nav_3_playlist"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

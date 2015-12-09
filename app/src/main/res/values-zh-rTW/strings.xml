@@ -58,7 +58,7 @@
     <string name="dialog_sure_sync">確定要同步?</string>
     <string name="dialog_folder_delete">若為資料夾會刪除資料夾內所有檔案，確定要刪除?</string>
     <string name="dialog_white_space">"名稱"與"重複次數"不能空白</string>
-    <string name="dialog_page_msg">"頁數"內容僅能包含","和"-"和"數字"</string>
+    <string name="dialog_page_msg">"頁數"格式不符</string>
     <string name="dialog_add_item">請加入播放項目</string>
     <string name="dialog_select_file">請選擇檔案</string>
     <string name="dialog_succeed">成功</string>

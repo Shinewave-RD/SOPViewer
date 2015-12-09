@@ -323,14 +323,18 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         }
         if (syncList.size() > 0) {
             //TODO:call ConnectionManager Sync()
+            Date nowDate = new Date(System.currentTimeMillis());
             List<FileInfo> resList = ConnectionManagerFragment.doSync(syncList); //james add
 
-            updateFileInfo(resList);
-
             for (FileInfo info : resList) {
-                if (!info.syncSucceed)
-                    failName.append(info.localFullFilePath).append("---");
+                if (!info.syncSucceed) {
+                    failName.append(info.localFullFilePath).append("\n");
+                } else {
+                    info.updateTime = nowDate;
+                }
             }
+
+            updateFileInfo(resList);
         }
         return failName.toString();
     }
@@ -388,14 +392,14 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String failName = doSyncAll(nowPath);
+                getFileList();
+                setupFileList(list, FileInfolist, nowPath);
+                mListView.clearChoices();
+                mAdapter.notifyDataSetChanged();
                 if (failName.equals("")) {
-                    getFileList();
-                    setupFileList(list, FileInfolist, nowPath);
-                    mListView.clearChoices();
-                    mAdapter.notifyDataSetChanged();
                     Toast.makeText(getActivity(), ctext.getString(R.string.dialog_sync_succeed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_failed) + ":" + failName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_sync_failed) + ":" + failName, Toast.LENGTH_LONG).show();
                 }
             }
         });

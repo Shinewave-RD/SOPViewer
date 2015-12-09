@@ -59,7 +59,7 @@
     <string name="dialog_sure_sync">Synchronize?</string>
     <string name="dialog_folder_delete">If you select a folder, all files in folder will be deleted. Continue?</string>
     <string name="dialog_white_space">"Name" and "Loop" must be filled.</string>
-    <string name="dialog_page_msg">"Page" content must cantain only number,  "-", or "," .</string>
+    <string name="dialog_page_msg">"Page" Format error. </string>
     <string name="dialog_add_item">Must contain at least have one item.</string>
     <string name="dialog_select_file">Please select pdf file.</string>
     <string name="dialog_succeed">Succeed</string>

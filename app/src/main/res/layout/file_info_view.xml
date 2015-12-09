@@ -20,6 +20,7 @@
                 android:id="@+id/fv_imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
                 android:src="@drawable/pdf" />
 
             <TextView
@@ -27,7 +28,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="@string/label_select_file"
+                android:singleLine="true"
+                android:text="@string/label_file_name"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
@@ -59,6 +61,8 @@
             android:id="@+id/fv_textViewConn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:singleLine="true"
             android:text="@string/label_source"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -67,6 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:singleLine="true"
             android:text="@string/label_last_update"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 

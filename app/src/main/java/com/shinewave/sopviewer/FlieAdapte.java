@@ -245,7 +245,7 @@ public class FlieAdapte extends BaseAdapter {
                     notifyDataSetChanged();
                     Toast.makeText(mContext, mContext.getString(R.string.dialog_sync_succeed), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(mContext, mContext.getString(R.string.dialog_sync_failed) + ":" + failName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.dialog_sync_failed) + ":" + failName, Toast.LENGTH_LONG).show();
                 }
             }
         });

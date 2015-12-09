@@ -284,15 +284,26 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
     private boolean pageValidate(List<PlayListItem> pItem) {
         boolean isValidated = true;
         for (PlayListItem item : pItem) {
-            if (!item.getStrPages().trim().equals("")) {
-                if (!item.getStrPages().contains(".")) {
-                    String[] tmpArr = item.getStrPages().trim().split(",");
+            if (item.getStrPages().trim().startsWith(",") || item.getStrPages().trim().startsWith("-") || item.getStrPages().trim().endsWith(",") || item.getStrPages().trim().endsWith("-") ||
+                    item.getStrPages().trim().contains(",-") || item.getStrPages().trim().contains("-,") || item.getStrPages().trim().contains(",,") || item.getStrPages().trim().contains("--")) {
+                isValidated = false;
+                break;
+            } else if (!item.getStrPages().trim().equals("")) {
+                String[] tmpArr = item.getStrPages().trim().split(",");
+                if (tmpArr.length > 0) {
                     for (String tmp : tmpArr) {
-                        if (tmp.contains("-")) {
+                        if (tmp.trim().equals("")) {
+                            isValidated = false;
+                            break;
+                        } else if (tmp.contains("-")) {
                             try {
                                 String[] intArr = tmp.trim().split("-", 2);
                                 int start = Integer.parseInt(intArr[0]);
                                 int end = Integer.parseInt(intArr[1]);
+                                if (start == 0 || end == 0 || start >= end) {
+                                    isValidated = false;
+                                    break;
+                                }
                             } catch (Exception e) {
                                 isValidated = false;
                                 break;
@@ -300,6 +311,10 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                         } else {
                             try {
                                 int page = Integer.parseInt(tmp.trim());
+                                if (page == 0) {
+                                    isValidated = false;
+                                    break;
+                                }
                             } catch (Exception e) {
                                 isValidated = false;
                                 break;
