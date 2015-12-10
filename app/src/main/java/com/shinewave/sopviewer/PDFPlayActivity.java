@@ -1,7 +1,6 @@
 package com.shinewave.sopviewer;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
@@ -12,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -20,17 +18,16 @@ import android.widget.TextView;
 import com.artifex.mupdfdemo.MuPDFCore;
 import com.artifex.mupdfdemo.MuPDFPageAdapter;
 import com.artifex.mupdfdemo.MuPDFReaderView;
-import com.artifex.mupdfdemo.MuPDFView;
 import com.artifex.mupdfdemo.OutlineActivityData;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PDFPlayActivity extends AppCompatActivity {
 
     private MuPDFCore        core;
-    private String           mFileName;
     private MuPDFReaderView  mDocView;
     private View             mButtonsView;
     private SeekBar          mPageSlider;
@@ -39,8 +36,8 @@ public class PDFPlayActivity extends AppCompatActivity {
     private boolean          mButtonsVisible;
     private Handler          handler;
     private int              playItemCount = 0;
+    private int              loopCount = 0;
     private PlayList         plist;
-    private int[]            aa = {0,1,2,3,4,5,6,7,8,0,1,2,3,4,5,6,7,8};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,8 +95,12 @@ public class PDFPlayActivity extends AppCompatActivity {
     }
 
     private void setup() {
+        if(playItemCount >= plist.playListItem.size()) {
+            loopCount++;
+            playItemCount = 0;
+        }
 
-        if(playItemCount >= plist.playListItem.size())
+        if(loopCount >= plist.loop)
             return;
 
         final PlayListItem pItem = plist.playListItem.get(playItemCount);
@@ -111,15 +112,14 @@ public class PDFPlayActivity extends AppCompatActivity {
             core = null;
             core = openFile(pItem.getlocalFullFilePath());
             if (core != null) {
+                final List seqList = parseStringRange(pItem.strPages);
                 handler = null;
-
                 handler = new Handler() {
                     Timer timer;
-                    int a= 0;
+                    int idx= 0;
                     public void handleMessage(Message msg) {
                         if (msg.what == mDocView.getCurrent()) {
-                            System.out.println("CCCCCCA=="+msg.what+","+ mDocView.getCurrent()+","+a+","+aa[a]);
-                            a++;
+                            idx++;
                             if (timer != null) {
                                 timer.cancel();
                                 timer.purge();
@@ -133,12 +133,13 @@ public class PDFPlayActivity extends AppCompatActivity {
                                     handler.post(new Runnable() {
 
                                         public void run() {
-                                            mDocView.setDisplayedViewIndex(aa[a]);
-                                            //int idx = mDocView.getDisplayedViewIndex();
-                                            //System.out.println("AAAAA=" + idx + "," + core.countPages() + "," + mDocView.getAdapter().getCount());
-                                            //if (0 <= idx && idx+1 >= core.countPages()-1)
-                                            //    setup();
-
+                                            try {
+                                                mDocView.setDisplayedViewIndex((int) seqList.get(idx));
+                                            }
+                                            catch(Exception e)
+                                            {
+                                                setup();
+                                            }
                                         }
                                     });
                                 }
@@ -148,30 +149,33 @@ public class PDFPlayActivity extends AppCompatActivity {
                     }
                 };
 
+                int start = (int)seqList.get(0);
                 mDocView.setAdapter(new MuPDFPageAdapter(this, null, core, handler));
-                updatePageNumView(0);
-                mPageSlider.setMax((core.countPages()-1)*mPageSliderRes);
-                mPageSlider.setProgress(0);
+                mDocView.setCurrent(start);
+
+                int smax = Math.max(core.countPages() - 1, 1);
+                mPageSliderRes = ((10 + smax - 1) / smax) * 2;
+
+                // Activate the seekbar
+                mPageSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        mDocView.setDisplayedViewIndex((seekBar.getProgress() + mPageSliderRes / 2) / mPageSliderRes);
+                    }
+
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    public void onProgressChanged(SeekBar seekBar, int progress,
+                                                  boolean fromUser) {
+                        updatePageNumView((progress + mPageSliderRes / 2) / mPageSliderRes);
+                    }
+                });
+
+                mPageSlider.setMax((core.countPages() - 1) * mPageSliderRes);
+                mPageSlider.setProgress(start);
+                updatePageNumView(start);
                 mDocView.refresh(false);
             }
-
-            int smax = Math.max(core.countPages() - 1, 1);
-            mPageSliderRes = ((10 + smax - 1) / smax) * 2;
-
-            // Activate the seekbar
-            mPageSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    mDocView.setDisplayedViewIndex((seekBar.getProgress() + mPageSliderRes / 2) / mPageSliderRes);
-                }
-
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                public void onProgressChanged(SeekBar seekBar, int progress,
-                                              boolean fromUser) {
-                    updatePageNumView((progress + mPageSliderRes / 2) / mPageSliderRes);
-                }
-            });
         }
     }
 
@@ -276,14 +280,47 @@ public class PDFPlayActivity extends AppCompatActivity {
         mPageNumberView.setText(String.format("%d / %d", index + 1, core.countPages()));
     }
 
-    private int[] parseStringRange(String str){
-        str = "3,4,5,8,10-20,1,2";
-        String[] a = str.split(str);
-        for(int i = 0; i < a.length; i++)
-        {
-            System.out.println(a[i]);
+    private List parseStringRange(String str){
+        ArrayList list = new ArrayList<>();
+        if(core != null) {
+            int length = core.countPages();
+            int start = 0;
+            int end = length;
+            if("".equals(str))
+            {
+                for (int j = start; j < end; j++) {
+                    list.add(j);
+                }
+            }
+            else {
+                String[] tmpArray = str.split(",");
+                for (String tmp : tmpArray) {
+                    try {
+                        if (tmp.contains("-")) {
+                            String[] tmpArray2 = tmp.split("-");
+                            if (!"".equals(tmpArray2[0]))
+                                start = Integer.parseInt(tmpArray2[0]);
+                            if (!"".equals(tmpArray2[1]))
+                                end = Integer.parseInt(tmpArray2[1]);
+                            for (int j = start; j <= end; j++) {
+                                if (j > 0 && j <= length) {
+                                    list.add(j - 1);
+                                }
+                            }
+
+                        } else {
+                            int number = Integer.parseInt(tmp);
+                            if (number > 0 && number <= length) {
+                                list.add(number - 1);
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
         }
-        return null;
+
+        return list;
     }
 
 }
