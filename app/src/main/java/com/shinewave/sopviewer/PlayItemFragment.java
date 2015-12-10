@@ -253,7 +253,7 @@ public class PlayItemFragment extends Fragment implements AbsListView.OnItemClic
                 }
 
                 PlayList pList = new PlayList();
-                pList.playListName = editName.getText().toString();
+                pList.playListName = editName.getText().toString().trim();
                 pList.loop = Integer.parseInt(editLoop.getText().toString());
                 pList.playListItem = adapter.getItems();
                 if (!pageValidate(pList.playListItem)) {
