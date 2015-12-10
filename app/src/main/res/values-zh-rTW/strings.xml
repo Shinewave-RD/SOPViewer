@@ -73,4 +73,6 @@
     <string name="dialog_delete_record">確定要刪除?</string>
     <string name="dialog_select_item">請選擇項目</string>
     <string name="nav_7_file_browser">檔案瀏覽</string>
+    <string name="dialog_folder_white">請輸入資料夾名稱</string>
+    <string name="dialog_format_error">格式不符，內容為空或包含特殊字元。</string>
 </resources>

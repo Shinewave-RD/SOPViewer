@@ -118,7 +118,7 @@ public class FlieAdapte extends BaseAdapter {
             itemView.FV_IMG.setImageDrawable(itemView.FV_IMG.getResources().getDrawable(mid));
             //itemView.viewBtn.setBackgroundDrawable(itemView.ItemButton.getResources().getDrawable(bid));
             if (fromType == FileMamagerFragment.FROM_MAIN_ACTIVITY) {
-                if (!name.equals("BACK") && !info.endsWith(mContext.getString(R.string.label_local))) {
+                if (!name.equals("BACK") || (info.endsWith(mContext.getString(R.string.label_local)) && !name.toLowerCase().endsWith("pdf"))) {
                     itemView.viewBtn_Sync.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Del.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Sync.setOnClickListener(new ItemButtonSync_Click(position));

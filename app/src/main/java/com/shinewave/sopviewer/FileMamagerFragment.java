@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.shinewave.sopviewer.dummy.DummyContent;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -351,32 +352,53 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                File folder = new File(nowPath + File.separator + name.getText());
-                boolean success;
-                if (!folder.exists()) {
-                    success = folder.mkdir();
-                    if (success) {
-                        getFileList();
-                        setupFileList(list, FileInfolist, nowPath);
-                        mListView.clearChoices();
-                        mAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_succeed), Toast.LENGTH_SHORT).show();
+                if (!name.getText().toString().trim().equals("") && !name.getText().toString().contains("\\") && !name.getText().toString().contains("/")
+                        && !name.getText().toString().contains(".") && !name.getText().toString().contains("?") && !name.getText().toString().contains(":")
+                        && !name.getText().toString().contains("<") && !name.getText().toString().contains(">") && !name.getText().toString().contains("|")
+                        && !name.getText().toString().contains("*") && !name.getText().toString().contains("\"")) {
+                    File folder = new File(nowPath + File.separator + name.getText().toString().trim());
+                    boolean success;
+                    if (!folder.exists()) {
+                        success = folder.mkdir();
+                        if (success) {
+                            getFileList();
+                            setupFileList(list, FileInfolist, nowPath);
+                            mListView.clearChoices();
+                            mAdapter.notifyDataSetChanged();
+                            canCloseDialog(dialog, true);
+                            Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_succeed), Toast.LENGTH_SHORT).show();
+                        } else {
+                            canCloseDialog(dialog, true);
+                            Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_failed), Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(getActivity(), ctext.getString(R.string.dialog_create_failed), Toast.LENGTH_SHORT).show();
+                        canCloseDialog(dialog, false);
+                        Toast.makeText(getActivity(), ctext.getString(R.string.dialog_folder_exist), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_folder_exist), Toast.LENGTH_SHORT).show();
+                    canCloseDialog(dialog, false);
+                    Toast.makeText(getActivity(), ctext.getString(R.string.dialog_format_error), Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-
+                canCloseDialog(dialog, true);
             }
         });
 
         builder.create().show();
+    }
+
+    private void canCloseDialog(DialogInterface dialogInterface, boolean close) {
+        try {
+            Field field = dialogInterface.getClass().getSuperclass().getDeclaredField("mShowing");
+            field.setAccessible(true);
+            field.set(dialogInterface, close);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showSyncDialog() {
