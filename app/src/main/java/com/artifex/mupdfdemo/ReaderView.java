@@ -774,6 +774,9 @@ public class ReaderView
 		return mCurrent;
 	}
 
+	public void setCurrent(int start) {
+		mCurrent = start;
+	}
 
 	private View getCached() {
 		if (mViewCache.size() == 0)
