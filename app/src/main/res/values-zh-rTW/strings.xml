@@ -75,4 +75,5 @@
     <string name="nav_7_file_browser">檔案瀏覽</string>
     <string name="dialog_folder_white">請輸入資料夾名稱</string>
     <string name="dialog_format_error">格式不符，內容為空或包含特殊字元。</string>
+    <string name="dialog_same_name">名稱重複</string>
 </resources>

@@ -76,4 +76,5 @@
     <string name="nav_7_file_browser">File Browser</string>
     <string name="dialog_folder_white">Folder name must be filled.</string>
     <string name="dialog_format_error">Format error</string>
+    <string name="dialog_same_name">Name is existed.</string>
 </resources>
