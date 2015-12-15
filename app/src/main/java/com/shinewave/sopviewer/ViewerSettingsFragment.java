@@ -99,15 +99,15 @@ public class ViewerSettingsFragment extends Fragment {
         }
         else if(value == 3)
         {
-            rbFitHeight.setChecked(true);
-            cbHorizontalAutoScroll.setChecked(false);
-            cbVerticalAutoScroll.setChecked(sharedPreferences.getBoolean("VerticalAutoScroll",false));
-        }
-        else if(value == 4)
-        {
             rbFitWidth.setChecked(true);
             cbVerticalAutoScroll.setChecked(true);
             cbHorizontalAutoScroll.setChecked(sharedPreferences.getBoolean("HorizontalAutoScroll",false));
+        }
+        else if(value == 4)
+        {
+            rbFitHeight.setChecked(true);
+            cbHorizontalAutoScroll.setChecked(false);
+            cbVerticalAutoScroll.setChecked(sharedPreferences.getBoolean("VerticalAutoScroll",false));
         }
         else if(value == 5)
         {
@@ -191,9 +191,9 @@ public class ViewerSettingsFragment extends Fragment {
         else if(fitWidth && !verticalAutoScroll)    //FitWidth = true & VerticalAutoScroll = false
             value = 2;
         else if(fitWidth && verticalAutoScroll)     //FitWidth = true & VerticalAutoScroll = true
-            value = 4;
-        else if(fitHeight && !horizontalAutoScroll) //FitHeight = true & HorizontalAutoScroll = false
             value = 3;
+        else if(fitHeight && !horizontalAutoScroll) //FitHeight = true & HorizontalAutoScroll = false
+            value = 4;
         else if(fitHeight && horizontalAutoScroll)  //FitHeight = true & HorizontalAutoScroll = true
             value = 5;
 
