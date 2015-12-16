@@ -43,7 +43,7 @@ public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integ
                     if(f.getName() != null && f.getName().equals(fileName))
                     {
                         ftpFile = f;
-                        file = new File(info.fileSavePath);
+                        file = new File(info.fileSavePath+fileName);
                         ftpClient.download(fileName, file);
                         break;
                     }
