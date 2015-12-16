@@ -98,8 +98,9 @@ public abstract class PageView extends ViewGroup {
 	private static final int PROGRESS_DIALOG_DELAY = 200;
 	protected final Context   mContext;
 	protected     int       mPageNumber;
-	private       Point     mParentSize;
+	public        Point     mParentSize;
 	protected     Point     mSize;   // Size of page at minimum zoom
+	public        PointF    pageSize;
 	protected     float     mSourceScale;
 
 	private       ImageView mEntire; // Image rendered at minimum zoom
@@ -121,7 +122,7 @@ public abstract class PageView extends ViewGroup {
 	private       RectF     mItemSelectBox;
 	protected     ArrayList<ArrayList<PointF>> mDrawing;
 	private       View      mSearchView;
-	private       boolean   mIsBlank;
+	public       boolean   mIsBlank;
 	private       boolean   mHighlightLinks;
 
 	private       ProgressBar mBusyIndicator;
@@ -229,6 +230,7 @@ public abstract class PageView extends ViewGroup {
 		}
 
 		mIsBlank = false;
+		pageSize = size;
 		// Highlights may be missing because mIsBlank was true on last draw
 		if (mSearchView != null)
 			mSearchView.invalidate();

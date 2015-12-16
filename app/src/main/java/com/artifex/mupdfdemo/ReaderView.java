@@ -6,14 +6,20 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Scroller;
@@ -705,7 +711,50 @@ public class ReaderView
 			cvLeft   += corr.x;
 		}
 
-		cv.layout(cvLeft, cvTop, cvRight, cvBottom);
+		if(!((PageView)cv).mIsBlank)
+		{
+			PointF size = ((PageView)cv).pageSize;
+			Point  parentSize = ((PageView)cv).mParentSize;
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+			int value = sharedPreferences.getInt("ViewerSetting", 1);
+			switch (value)
+			{
+				case 1:
+					cv.layout(cvLeft, cvTop, cvRight, cvBottom);
+					break;
+				case 2:
+				case 3:
+					if(size != null && parentSize != null)
+					{
+						float scale = parentSize.x/size.x;
+						cv.layout(0, 0, (int) (size.x * scale), (int) (size.y * scale));
+					}
+					else
+					{
+						cv.layout(cvLeft, cvTop, cvRight, cvBottom);
+					}
+					break;
+				case 4:
+				case 5:
+					if(size != null && parentSize != null)
+					{
+						float scale = parentSize.y/size.y;
+						cv.layout(0, 0, (int)(size.x*scale), (int)(size.y*scale));
+					}
+					else
+					{
+						cv.layout(cvLeft, cvTop, cvRight, cvBottom);
+					}
+					break;
+				default:
+					cv.layout(cvLeft, cvTop, cvRight, cvBottom);
+					break;
+			}
+		}
+		else
+		{
+			cv.layout(cvLeft, cvTop, cvRight, cvBottom);
+		}
 
 		if (mCurrent > 0) {
 			View lv = getOrCreateChild(mCurrent - 1);
