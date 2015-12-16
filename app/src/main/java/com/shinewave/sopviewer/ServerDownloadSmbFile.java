@@ -27,9 +27,18 @@ public class ServerDownloadSmbFile extends AsyncTask<ServerConnectionInfo, Integ
         try {
             info = params[0];
             NtlmPasswordAuthentication authentication = new NtlmPasswordAuthentication("", info.id, info.password); // domain, user, password
-            smbFile = new SmbFile("smb://" + info.url + info.fullFilePath, authentication);
+
+            if(info.fullFilePath.startsWith("/"))
+                smbFile = new SmbFile("smb://" + info.url + info.fullFilePath, authentication);
+            else
+                smbFile = new SmbFile("smb://" + info.url + File.separator + info.fullFilePath, authentication);
+
             if (smbFile != null) {
-                localPath = Environment.getExternalStorageDirectory() + File.separator + smbFile.getName();
+                if(info.fileSavePath.endsWith("/"))
+                    localPath = info.fileSavePath + smbFile.getName();
+                else
+                    localPath = info.fileSavePath + File.separator + smbFile.getName();
+
                 FileOutputStream fileOutputStream = new FileOutputStream(localPath);
                 InputStream fileInputStream = smbFile.getInputStream();
                 byte[] buf = new byte[16 * 1024 * 1024];
