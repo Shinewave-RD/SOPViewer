@@ -381,21 +381,19 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         return list;
     }
 
-    public static boolean createConnection(List<ServerConnectionInfo> connectionInfo)
+    public static List<ServerConnectionInfo> createConnection(List<ServerConnectionInfo> connectionInfo)
     {
-        try {
-            for (int i = 0; i < connectionInfo.size(); i++) {
-                ServerConnectionInfo sInfo = connectionInfo.get(i);
+        for (int i = 0; i < connectionInfo.size(); i++) {
+            ServerConnectionInfo sInfo = connectionInfo.get(i);
+            try {
                 if (ConnectionInfo.ProtocolType.FTP.toInt() == sInfo.protocol)
-                    new ServerDownloadFtpFile().execute(sInfo);
+                    sInfo = new ServerDownloadFtpFile().execute(sInfo).get();
                 else if (ConnectionInfo.ProtocolType.SMB.toInt() == sInfo.protocol)
-                    new ServerDownloadSmbFile().execute(sInfo);
+                    sInfo = new ServerDownloadSmbFile().execute(sInfo).get();
+            } catch (Exception e) {
+                sInfo.downloadSuccessed = false;
             }
-            return true;
         }
-        catch(Exception e)
-        {
-            return false;
-        }
+        return connectionInfo;
     }
 }

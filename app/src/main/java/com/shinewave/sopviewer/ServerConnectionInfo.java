@@ -11,4 +11,5 @@ public class ServerConnectionInfo {
     public String password;
     public String fullFilePath;
     public String fileSavePath;
+    public boolean downloadSuccessed = false;
 }

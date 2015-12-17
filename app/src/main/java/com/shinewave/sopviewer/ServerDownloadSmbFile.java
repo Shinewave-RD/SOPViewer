@@ -16,13 +16,13 @@ import jcifs.smb.SmbFile;
 /**
  * Created by user on 2015/12/2.
  */
-public class ServerDownloadSmbFile extends AsyncTask<ServerConnectionInfo, Integer, String> {
+public class ServerDownloadSmbFile extends AsyncTask<ServerConnectionInfo, Integer, ServerConnectionInfo> {
     private SmbFile smbFile;
     private ServerConnectionInfo info;
     private String localPath;
 
     @Override
-    protected String doInBackground(ServerConnectionInfo... params)
+    protected ServerConnectionInfo doInBackground(ServerConnectionInfo... params)
     {
         try {
             info = params[0];
@@ -48,19 +48,20 @@ public class ServerDownloadSmbFile extends AsyncTask<ServerConnectionInfo, Integ
                 }
                 fileInputStream.close();
                 fileOutputStream.close();
+                info.downloadSuccessed = true;
             }
-            return localPath;
+            return info;
         } catch (Exception e) {
-            return null;
+            return info;
         }
     }
 
     @Override
-    protected void onPostExecute(String result)
+    protected void onPostExecute(ServerConnectionInfo result)
     {
         super.onPostExecute(result);
 
-        if(result == null)
+        if(!result.downloadSuccessed)
             return;
 
         ConnectionInfo connInfo = new ConnectionInfo();
@@ -76,13 +77,13 @@ public class ServerDownloadSmbFile extends AsyncTask<ServerConnectionInfo, Integ
             DBManager.insertConnection(connInfo);
 
         FileInfo fileInfo = new FileInfo();
-        fileInfo.localFullFilePath = result;
+        fileInfo.localFullFilePath = localPath;
         fileInfo.remoteFullFilePath = smbFile.getPath();
         fileInfo.connectionName = info.connectionName;
         fileInfo.updateTime = new Date(System.currentTimeMillis());
         fileInfo.syncSucceed = true;
-        fileInfo.size = (int)result.length();
         try {
+            fileInfo.size = (int)smbFile.length();
             fileInfo.remoteTimeStamp = new Date(smbFile.lastModified());
         }
         catch(Exception e)

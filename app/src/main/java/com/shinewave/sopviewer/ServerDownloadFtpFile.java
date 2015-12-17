@@ -12,13 +12,14 @@ import it.sauronsoftware.ftp4j.FTPFile;
 /**
  * Created by user on 2015/12/2.
  */
-public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integer, File> {
+public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integer, ServerConnectionInfo> {
     private FTPClient ftpClient;
     private FTPFile ftpFile;
     private ServerConnectionInfo info;
+    private File file = null;
 
     @Override
-    protected File doInBackground(ServerConnectionInfo... params)
+    protected ServerConnectionInfo doInBackground(ServerConnectionInfo... params)
     {
         try {
             info = params[0];
@@ -36,7 +37,6 @@ public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integ
             ftpClient.changeDirectory(tmpPath);
             FTPFile[] list = ftpClient.list();
             if(list != null) {
-                File file = null;
                 for(int i = 0; i < list.length; i++)
                 {
                     FTPFile f = list[i];
@@ -45,6 +45,7 @@ public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integ
                         ftpFile = f;
                         file = new File(info.fileSavePath+fileName);
                         ftpClient.download(fileName, file);
+                        info.downloadSuccessed = true;
                         break;
                     }
                 }
@@ -52,23 +53,23 @@ public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integ
                 if (ftpClient != null)
                     ftpClient.disconnect(true);
 
-                return file;
+                return info;
             }
             else
             {
-                return null;
+                return info;
             }
         } catch (Exception e) {
-            return null;
+            return info;
         }
     }
 
     @Override
-    protected void onPostExecute(File result)
+    protected void onPostExecute(ServerConnectionInfo result)
     {
         super.onPostExecute(result);
 
-        if(result == null)
+        if(!result.downloadSuccessed)
             return;
 
         ConnectionInfo connInfo = new ConnectionInfo();
@@ -84,12 +85,12 @@ public class ServerDownloadFtpFile extends AsyncTask<ServerConnectionInfo, Integ
             DBManager.insertConnection(connInfo);
 
         FileInfo fileInfo = new FileInfo();
-        fileInfo.localFullFilePath = result.getAbsolutePath();
+        fileInfo.localFullFilePath = file.getAbsolutePath();
         fileInfo.remoteFullFilePath = info.fullFilePath;
         fileInfo.connectionName = info.connectionName;
         fileInfo.updateTime = new Date(System.currentTimeMillis());
         fileInfo.syncSucceed = true;
-        fileInfo.size = (int)result.length();
+        fileInfo.size = (int)file.length();
         fileInfo.remoteTimeStamp = ftpFile.getModifiedDate();
         FileInfo tmp = DBManager.getSingleFileInfo(fileInfo.localFullFilePath);
         if(tmp != null && tmp.localFullFilePath != null)
