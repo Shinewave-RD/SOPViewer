@@ -671,6 +671,7 @@ public class ReaderView
 
 		// Ensure current view is present
 		int cvLeft, cvRight, cvTop, cvBottom;
+		Point corr = null;
 		boolean notPresent = (mChildViews.get(mCurrent) == null);
 		cv = getOrCreateChild(mCurrent);
 		// When the view is sub-screen-size in either dimension we
@@ -692,7 +693,7 @@ public class ReaderView
 		cvBottom = cvTop  + cv.getMeasuredHeight();
 
 		if (!mUserInteracting && mScroller.isFinished()) {
-			Point corr = getCorrection(getScrollBounds(cvLeft, cvTop, cvRight, cvBottom));
+			corr = getCorrection(getScrollBounds(cvLeft, cvTop, cvRight, cvBottom));
 			cvRight  += corr.x;
 			cvLeft   += corr.x;
 			cvTop    += corr.y;
@@ -700,13 +701,13 @@ public class ReaderView
 		} else if (HORIZONTAL_SCROLLING && cv.getMeasuredHeight() <= getHeight()) {
 			// When the current view is as small as the screen in height, clamp
 			// it vertically
-			Point corr = getCorrection(getScrollBounds(cvLeft, cvTop, cvRight, cvBottom));
+			corr = getCorrection(getScrollBounds(cvLeft, cvTop, cvRight, cvBottom));
 			cvTop    += corr.y;
 			cvBottom += corr.y;
 		} else if (!HORIZONTAL_SCROLLING && cv.getMeasuredWidth() <= getWidth()) {
 			// When the current view is as small as the screen in width, clamp
 			// it horizontally
-			Point corr = getCorrection(getScrollBounds(cvLeft, cvTop, cvRight, cvBottom));
+			corr = getCorrection(getScrollBounds(cvLeft, cvTop, cvRight, cvBottom));
 			cvRight  += corr.x;
 			cvLeft   += corr.x;
 		}
@@ -717,6 +718,7 @@ public class ReaderView
 			Point  parentSize = ((PageView)cv).mParentSize;
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 			int value = sharedPreferences.getInt("ViewerSetting", 1);
+			System.out.println("Corr=="+corr.x+","+corr.y);
 			switch (value)
 			{
 				case 1:
@@ -724,10 +726,13 @@ public class ReaderView
 					break;
 				case 2:
 				case 3:
-					if(size != null && parentSize != null)
+					if(size != null && parentSize != null && corr != null)
 					{
 						float scale = parentSize.x/size.x;
-						cv.layout(0, 0, (int) (size.x * scale), (int) (size.y * scale));
+						if(corr.y == 0) //螢幕是橫的
+						    cv.layout(0, 0, (int) (size.x * scale), (int) (size.y * scale));
+						else
+							cv.layout(cvLeft, cvTop, (int) (size.x * scale), (int) (size.y * scale));
 					}
 					else
 					{
@@ -736,15 +741,7 @@ public class ReaderView
 					break;
 				case 4:
 				case 5:
-					if(size != null && parentSize != null)
-					{
-						float scale = parentSize.y/size.y;
-						cv.layout(0, 0, (int)(size.x*scale), (int)(size.y*scale));
-					}
-					else
-					{
-						cv.layout(cvLeft, cvTop, cvRight, cvBottom);
-					}
+					cv.layout(cvLeft, cvTop, cvRight, cvBottom);
 					break;
 				default:
 					cv.layout(cvLeft, cvTop, cvRight, cvBottom);

@@ -54,6 +54,7 @@
             android:id="@+id/cbVerticalAutoScroll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="invisible"
             android:textSize="32dp"
             android:layout_margin="5dp"
             android:text="Vertical Auto Scroll" />
@@ -61,6 +62,7 @@
             android:id="@+id/cbHorizontalAutoScroll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="invisible"
             android:textSize="32dp"
             android:layout_margin="5dp"
             android:text="Horizontal Auto Scroll" />
