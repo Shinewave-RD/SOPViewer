@@ -65,33 +65,80 @@ public class PDFPlayActivity extends AppCompatActivity {
             if (type == 1) {
                 //Conn
                 List<ServerConnectionInfo> downloadList = parseConnJson(obj);
-                String failedConn = CreateConnJason(downloadList);
-                if (failedConn.trim().equals("")) {
-                    Toast.makeText(PDFPlayActivity.this, "Succeed", Toast.LENGTH_LONG).show();
+                if (downloadList.size() > 0) {
+                    //驗證Conn內容
+                    String resValid = ValidateConnJson(downloadList);
+                    if (resValid.trim().equals("")) {
+                        //建立Conn
+                        String failedConn = CreateConnJason(downloadList);
+                        if (failedConn.trim().equals("")) {
+                            Toast.makeText(PDFPlayActivity.this, "Succeed", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(PDFPlayActivity.this, "failed : \n" + failedConn, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(PDFPlayActivity.this, "Connection Format Error : \n" + resValid, Toast.LENGTH_LONG).show();
+                    }
                 } else {
-                    Toast.makeText(PDFPlayActivity.this, "failed : \n" + failedConn, Toast.LENGTH_LONG).show();
+                    Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
                 }
             } else if (type == 2) {
                 //Play
                 PlayList playListCreate = parsePlayJson(obj);
-                boolean resPlay = CreatePlayJson(playListCreate);
-                if (resPlay)
-                    playListName = playListCreate.playListName;
-                else
-                    Toast.makeText(PDFPlayActivity.this, "failed", Toast.LENGTH_LONG).show();
+                if (playListCreate.playListName != null && !playListCreate.playListName.trim().equals("")) {
+                    //驗證PlayList
+                    String resValidPlay = ValidatePlayJson(playListCreate);
+                    if (resValidPlay.trim().equals("")) {
+                        //建立PlayList
+                        boolean resPlay = CreatePlayJson(playListCreate);
+                        if (resPlay)
+                            playListName = playListCreate.playListName;
+                        else
+                            Toast.makeText(PDFPlayActivity.this, "failed", Toast.LENGTH_LONG).show();
+                    } else {
+                        resValidPlay = resValidPlay.substring(0, resValidPlay.length() - 3);
+                        Toast.makeText(PDFPlayActivity.this, "PlayList Format Error : \n" + resValidPlay, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
+                }
             } else if (type == 3) {
                 //Conn + Play
                 List<ServerConnectionInfo> downloadList = parseConnJson(obj);
-                String failedConn = CreateConnJason(downloadList);
-                if (failedConn.trim().equals("")) {
-                    PlayList playListCreate = parsePlayJson(obj);
-                    boolean resPlay = CreatePlayJson(playListCreate);
-                    if (resPlay)
-                        playListName = playListCreate.playListName;
-                    else
-                        Toast.makeText(PDFPlayActivity.this, "failed", Toast.LENGTH_LONG).show();
+
+                if (downloadList.size() > 0) {
+                    //驗證Conn內容
+                    String resValid = ValidateConnJson(downloadList);
+                    if (resValid.trim().equals("")) {
+                        //建立Conn
+                        String failedConn = CreateConnJason(downloadList);
+                        if (failedConn.trim().equals("")) {
+                            //解析PlayJson
+                            PlayList playListCreate = parsePlayJson(obj);
+                            if (playListCreate.playListName != null && !playListCreate.playListName.trim().equals("")) {
+                                //驗證PlayList
+                                String resValidPlay = ValidatePlayJson(playListCreate);
+                                if (resValidPlay.trim().equals("")) {
+                                    //建立PlayList
+                                    boolean resPlay = CreatePlayJson(playListCreate);
+                                    if (resPlay)
+                                        playListName = playListCreate.playListName;
+                                    else
+                                        Toast.makeText(PDFPlayActivity.this, "failed", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(PDFPlayActivity.this, "PlayList Format Error : \n" + resValidPlay, Toast.LENGTH_LONG).show();
+                                }
+                            } else {
+                                Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            Toast.makeText(PDFPlayActivity.this, "failed : \n" + failedConn, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(PDFPlayActivity.this, "Connection Format Error : \n" + resValid, Toast.LENGTH_LONG).show();
+                    }
                 } else {
-                    Toast.makeText(PDFPlayActivity.this, "failed : \n" + failedConn, Toast.LENGTH_LONG).show();
+                    Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
                 }
             }
         } else {
@@ -386,19 +433,19 @@ public class PDFPlayActivity extends AppCompatActivity {
         PlayList pList = new PlayList();
         pList.playListItem = new ArrayList<>();
         try {
-            pList.playListName = obj.getString("playListName");
+            pList.playListName = obj.getString("playListName").trim();
             pList.loop = obj.getInt("loop");
             JSONArray arr = obj.getJSONArray("PlayListItem");
             for (int i = 0; i < arr.length(); i++) {
                 PlayListItem item = new PlayListItem(0, "", "", null, 0);
                 item.seq = i;
-                item.localFullFilePath = arr.getJSONObject(i).getString("localFullFilePath");
-                item.strPages = arr.getJSONObject(i).getString("strPages");
+                item.localFullFilePath = arr.getJSONObject(i).getString("localFullFilePath").trim();
+                item.strPages = arr.getJSONObject(i).getString("strPages").trim();
                 item.sec = arr.getJSONObject(i).getInt("sec");
                 pList.playListItem.add(item);
             }
         } catch (Exception e) {
-            //
+            pList = new PlayList();
         }
         return pList;
     }
@@ -409,23 +456,114 @@ public class PDFPlayActivity extends AppCompatActivity {
             JSONArray arr = obj.getJSONArray("Conn");
             for (int i = 0; i < arr.length(); i++) {
                 ServerConnectionInfo info = new ServerConnectionInfo();
-                info.connectionName = arr.getJSONObject(i).getString("connectionName");
-                String pType = arr.getJSONObject(i).getString("protocol");
+                info.connectionName = arr.getJSONObject(i).getString("connectionName").trim();
+                String pType = arr.getJSONObject(i).getString("protocol").trim();
                 if (pType.toLowerCase().equals("ftp"))
                     info.protocol = 0;
                 else if (pType.toLowerCase().equals("smb"))
                     info.protocol = 1;
-                info.url = arr.getJSONObject(i).getString("url");
-                info.id = arr.getJSONObject(i).getString("id");
-                info.password = arr.getJSONObject(i).getString("password");
-                info.fullFilePath = arr.getJSONObject(i).getString("fullFilePath");
-                info.fileSavePath = arr.getJSONObject(i).getString("fileSavePath");
+                else
+                    info.protocol = 2;
+                info.url = arr.getJSONObject(i).getString("url").trim();
+                info.id = arr.getJSONObject(i).getString("id").trim();
+                info.password = arr.getJSONObject(i).getString("password").trim();
+                info.fullFilePath = arr.getJSONObject(i).getString("fullFilePath").trim();
+                info.fileSavePath = arr.getJSONObject(i).getString("fileSavePath").trim();
                 connList.add(info);
+            }
+        } catch (Exception e) {
+            connList = new ArrayList<>();
+        }
+        return connList;
+    }
+
+    private String ValidateConnJson(List<ServerConnectionInfo> infoList) {
+        StringBuilder failedName = new StringBuilder();
+        try {
+            for (ServerConnectionInfo info : infoList) {
+                if (info.connectionName == null || info.connectionName.trim().equals("")) {
+                    failedName.append("connectionName is null").append("\n");
+                } else if (info.id == null || info.id.trim().equals("") || info.password == null || info.password.trim().equals("") ||
+                        info.url == null || info.url.trim().equals("") || info.fullFilePath == null || info.fullFilePath.trim().equals("") ||
+                        info.fileSavePath == null || info.fileSavePath.trim().equals("")) {
+                    failedName.append(info.connectionName).append("\n");
+                } else if (info.connectionName.length() > 25 || info.protocol == 2 || info.id.length() > 40 || info.password.length() > 40 ||
+                        info.fullFilePath.length() > 500 || info.fileSavePath.length() > 500 || info.url.length() > 500) {
+                    failedName.append(info.connectionName).append("\n");
+                }
             }
         } catch (Exception e) {
             //
         }
-        return connList;
+        return failedName.toString();
+    }
+
+    private String ValidatePlayJson(PlayList pList) {
+        StringBuilder failedName = new StringBuilder();
+        try {
+            if (pList.playListName == null || pList.playListName.trim().equals("")) {
+                failedName.append("PlayListName is null").append("\n");
+            } else if (pList.playListName.length() > 30 || String.valueOf(pList.loop).length() > 30 || pList.playListItem.size() == 0) {
+                failedName.append(pList.playListName).append("\n");
+            } else if (pList.playListItem.size() > 0) {
+                for (PlayListItem item : pList.playListItem) {
+                    if (item.localFullFilePath == null || item.localFullFilePath.trim().equals("") || item.strPages == null || item.strPages.trim().equals("")) {
+                        failedName.append(pList.playListName).append("\n");
+                    } else if (!pageValidate(item)) {
+                        failedName.append(pList.playListName).append("\n");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //
+        }
+        return failedName.toString();
+    }
+
+    private boolean pageValidate(PlayListItem item) {
+        boolean isValidated = true;
+        if (item.getStrPages().trim().startsWith(",") || item.getStrPages().trim().startsWith("-") || item.getStrPages().trim().endsWith(",") || item.getStrPages().trim().endsWith("-") ||
+                item.getStrPages().trim().contains(",-") || item.getStrPages().trim().contains("-,") || item.getStrPages().trim().contains(",,") || item.getStrPages().trim().contains("--")) {
+            isValidated = false;
+        } else if (!item.getStrPages().trim().equals("")) {
+            String[] tmpArr = item.getStrPages().trim().split(",");
+            if (tmpArr.length > 0) {
+                for (String tmp : tmpArr) {
+                    if (tmp.trim().equals("")) {
+                        isValidated = false;
+                        break;
+                    } else if (tmp.contains("-")) {
+                        try {
+                            String[] intArr = tmp.trim().split("-", 2);
+                            int start = Integer.parseInt(intArr[0]);
+                            int end = Integer.parseInt(intArr[1]);
+                            if (start == 0 || end == 0 || start >= end) {
+                                isValidated = false;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            isValidated = false;
+                            break;
+                        }
+                    } else {
+                        try {
+                            int page = Integer.parseInt(tmp.trim());
+                            if (page == 0) {
+                                isValidated = false;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            isValidated = false;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                isValidated = false;
+            }
+        }
+
+        return isValidated;
     }
 
     private boolean CreatePlayJson(PlayList createPList) {
