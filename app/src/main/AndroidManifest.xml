@@ -25,6 +25,10 @@
         <activity
             android:name=".PDFPlayActivity"
             android:label="@string/title_activity_pdfplay" >
+            <intent-filter>
+                <action android:name="com.shinewave.sopviewer.PDFPlayActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 
