@@ -22,8 +22,8 @@ public class SyncFtpFiles extends AsyncTask<FileInfo, Integer, FileInfo> {
     protected FileInfo doInBackground(FileInfo... params)
     {
         FileInfo file = params[0];
+        FTPClient ftpClient = new FTPClient();
         try {
-            FTPClient ftpClient = new FTPClient();
             ConnectionInfo conn = DBManager.getConnection(file.connectionName);
             if (conn != null) {
                 ftpClient.connect(conn.url);
@@ -51,6 +51,12 @@ public class SyncFtpFiles extends AsyncTask<FileInfo, Integer, FileInfo> {
 
         } catch (Exception e) {
             file.syncSucceed = false;
+            try
+            {
+                if (ftpClient != null)
+                    ftpClient.disconnect(true);
+            }
+            catch(Exception e2) {}
         }
 
         return file;
