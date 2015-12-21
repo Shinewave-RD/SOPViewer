@@ -44,6 +44,9 @@ public class PDFPlayActivity extends AppCompatActivity {
     private int playItemCount = 0;
     private int loopCount = 0;
     private PlayList plist;
+    private static final int OUTER_TYPE_CONN = 1;
+    private static final int OUTER_TYPE_PLAY = 2;
+    private static final int OUTER_TYPE_CONN_AND_PLAY = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,7 @@ public class PDFPlayActivity extends AppCompatActivity {
         Intent it = getIntent();
         String playListName = "";
         if (it.getAction() != null && it.getAction().equals("com.shinewave.sopviewer.PDFPlayActivity")) {
+            //外部傳入
             int type = it.getIntExtra("IntentType", 0);
             String jsonStr = getIntent().getStringExtra("Json");
             JSONObject obj = new JSONObject();
@@ -62,86 +66,36 @@ public class PDFPlayActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
             }
-            if (type == 1) {
+            if (type == OUTER_TYPE_CONN) {
                 //Conn
-                List<ServerConnectionInfo> downloadList = parseConnJson(obj);
-                if (downloadList.size() > 0) {
-                    //驗證Conn內容
-                    String resValid = ValidateConnJson(downloadList);
-                    if (resValid.trim().equals("")) {
-                        //建立Conn
-                        String failedConn = CreateConnJason(downloadList);
-                        if (failedConn.trim().equals("")) {
-                            Toast.makeText(PDFPlayActivity.this, "Succeed", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(PDFPlayActivity.this, "failed : \n" + failedConn, Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Toast.makeText(PDFPlayActivity.this, "Connection Format Error : \n" + resValid, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
-                }
-            } else if (type == 2) {
+                String msg = doOuterConn(obj);
+                Toast.makeText(PDFPlayActivity.this, msg, Toast.LENGTH_LONG).show();
+            } else if (type == OUTER_TYPE_PLAY) {
                 //Play
-                PlayList playListCreate = parsePlayJson(obj);
-                if (playListCreate.playListName != null && !playListCreate.playListName.trim().equals("")) {
-                    //驗證PlayList
-                    String resValidPlay = ValidatePlayJson(playListCreate);
-                    if (resValidPlay.trim().equals("")) {
-                        //建立PlayList
-                        boolean resPlay = CreatePlayJson(playListCreate);
-                        if (resPlay)
-                            playListName = playListCreate.playListName;
-                        else
-                            Toast.makeText(PDFPlayActivity.this, "failed", Toast.LENGTH_LONG).show();
-                    } else {
-                        resValidPlay = resValidPlay.substring(0, resValidPlay.length() - 3);
-                        Toast.makeText(PDFPlayActivity.this, "PlayList Format Error : \n" + resValidPlay, Toast.LENGTH_LONG).show();
-                    }
+                String msg = doOuterPlay(obj);
+                if (msg.startsWith("Succeed")) {
+                    String[] nameArr = msg.split(",");
+                    playListName = nameArr[1];
                 } else {
-                    Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
+                    Toast.makeText(PDFPlayActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
-            } else if (type == 3) {
+            } else if (type == OUTER_TYPE_CONN_AND_PLAY) {
                 //Conn + Play
-                List<ServerConnectionInfo> downloadList = parseConnJson(obj);
-
-                if (downloadList.size() > 0) {
-                    //驗證Conn內容
-                    String resValid = ValidateConnJson(downloadList);
-                    if (resValid.trim().equals("")) {
-                        //建立Conn
-                        String failedConn = CreateConnJason(downloadList);
-                        if (failedConn.trim().equals("")) {
-                            //解析PlayJson
-                            PlayList playListCreate = parsePlayJson(obj);
-                            if (playListCreate.playListName != null && !playListCreate.playListName.trim().equals("")) {
-                                //驗證PlayList
-                                String resValidPlay = ValidatePlayJson(playListCreate);
-                                if (resValidPlay.trim().equals("")) {
-                                    //建立PlayList
-                                    boolean resPlay = CreatePlayJson(playListCreate);
-                                    if (resPlay)
-                                        playListName = playListCreate.playListName;
-                                    else
-                                        Toast.makeText(PDFPlayActivity.this, "failed", Toast.LENGTH_LONG).show();
-                                } else {
-                                    Toast.makeText(PDFPlayActivity.this, "PlayList Format Error : \n" + resValidPlay, Toast.LENGTH_LONG).show();
-                                }
-                            } else {
-                                Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
-                            }
-                        } else {
-                            Toast.makeText(PDFPlayActivity.this, "failed : \n" + failedConn, Toast.LENGTH_LONG).show();
-                        }
+                String msgConn = doOuterConn(obj);
+                if (msgConn.equals("Succeed")) {
+                    String msgPlay = doOuterPlay(obj);
+                    if (msgPlay.startsWith("Succeed")) {
+                        String[] nameArr = msgPlay.split(",");
+                        playListName = nameArr[1];
                     } else {
-                        Toast.makeText(PDFPlayActivity.this, "Connection Format Error : \n" + resValid, Toast.LENGTH_LONG).show();
+                        Toast.makeText(PDFPlayActivity.this, msgPlay, Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
+                    Toast.makeText(PDFPlayActivity.this, msgConn, Toast.LENGTH_LONG).show();
                 }
             }
         } else {
+            //內部
             playListName = getIntent().getStringExtra("PlayListName");
         }
 
@@ -427,6 +381,51 @@ public class PDFPlayActivity extends AppCompatActivity {
         }
 
         return list;
+    }
+
+    private String doOuterConn(JSONObject obj) {
+        String res;
+        List<ServerConnectionInfo> downloadList = parseConnJson(obj);
+        if (downloadList.size() > 0) {
+            //驗證Conn內容
+            String resValid = ValidateConnJson(downloadList);
+            if (resValid.trim().equals("")) {
+                //建立Conn
+                String failedConn = CreateConnJason(downloadList);
+                if (failedConn.trim().equals("")) {
+                    res = "Succeed";
+                } else {
+                    res = "Failed : \n";
+                }
+            } else {
+                res = "Connection Format Error : \n" + resValid.substring(0, resValid.length() - 3);
+            }
+        } else {
+            res = "Json format error";
+        }
+        return res;
+    }
+
+    private String doOuterPlay(JSONObject obj) {
+        String res;
+        PlayList playListCreate = parsePlayJson(obj);
+        if (playListCreate.playListName != null && !playListCreate.playListName.trim().equals("")) {
+            //驗證PlayList
+            String resValidPlay = ValidatePlayJson(playListCreate);
+            if (resValidPlay.trim().equals("")) {
+                //建立PlayList
+                boolean resPlay = CreatePlayJson(playListCreate);
+                if (resPlay)
+                    res = "Succeed," + playListCreate.playListName;
+                else
+                    res = "Failed";
+            } else {
+                res = "PlayList Format Error : \n" + resValidPlay.substring(0, resValidPlay.length() - 3);
+            }
+        } else {
+            res = "Json format error";
+        }
+        return res;
     }
 
     private PlayList parsePlayJson(JSONObject obj) {
