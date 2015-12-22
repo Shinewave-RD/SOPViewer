@@ -1,5 +1,6 @@
 package com.shinewave.sopviewer;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +22,9 @@ import android.widget.Toast;
 import com.artifex.mupdfdemo.MuPDFCore;
 import com.artifex.mupdfdemo.MuPDFPageAdapter;
 import com.artifex.mupdfdemo.MuPDFReaderView;
+import com.artifex.mupdfdemo.MuPDFView;
 import com.artifex.mupdfdemo.OutlineActivityData;
+import com.artifex.mupdfdemo.ReaderView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -166,8 +169,13 @@ public class PDFPlayActivity extends AppCompatActivity {
             playItemCount = 0;
         }
 
-        if (loopCount >= plist.loop)
+        if (loopCount >= plist.loop) {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("result","FINISH");
+            setResult(Activity.RESULT_OK,returnIntent);
+            finish();
             return;
+        }
 
         final PlayListItem pItem = plist.playListItem.get(playItemCount);
         if (pItem != null) {
@@ -240,6 +248,11 @@ public class PDFPlayActivity extends AppCompatActivity {
                 mPageSlider.setProgress(start);
                 updatePageNumView(start);
                 mDocView.refresh(false);
+            }
+            else
+            {
+                Toast.makeText(this, pItem.getlocalFullFilePath() + " is not exist!!", Toast.LENGTH_SHORT).show();
+                setup();
             }
         }
     }
@@ -592,6 +605,22 @@ public class PDFPlayActivity extends AppCompatActivity {
             //
         }
         return failedName.toString();
+    }
+
+    public void onDestroy()
+    {
+        if (mDocView != null) {
+            mDocView.applyToChildren(new ReaderView.ViewMapper() {
+                public void applyToView(View view) {
+                    ((MuPDFView)view).releaseBitmaps();
+                }
+            });
+        }
+        if (core != null)
+            core.onDestroy();
+
+        core = null;
+        super.onDestroy();
     }
 
 }
