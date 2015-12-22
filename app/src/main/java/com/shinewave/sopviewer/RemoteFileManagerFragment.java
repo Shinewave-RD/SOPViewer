@@ -499,7 +499,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                             builder.setMessage("File exist !! Are you sure to overwrite?");
                             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    //new DownloadFtpFile().execute(sf);
+                                    new DownloadSmbFile().execute(sf);
                                 }
                             });
 
