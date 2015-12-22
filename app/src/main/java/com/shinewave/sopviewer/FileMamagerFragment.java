@@ -60,6 +60,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
     private static final String FV_File = "fileObject";
     private static final String FV_SyncBtn = "sync";
     private static final String FV_DelBtn = "delete";
+    private static final String FV_IsRemote = "remote";
 
     public static final int FROM_MAIN_ACTIVITY = 0;
     public static final int FROM_REMOTE = 1;
@@ -132,7 +133,8 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                         FV_CONNECTION,
                         FV_UPDATE_DT,
                         FV_SyncBtn,
-                        FV_DelBtn},
+                        FV_DelBtn,
+                        FV_IsRemote},
                 new int[]{R.id.fv_imageView,
                         R.id.fv_textViewFile,
                         R.id.fv_textViewConn,
@@ -256,7 +258,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
             //use the provided path
             fItem = new HashMap<String, Object>();
             fItem.put(FV_IMAGE, R.drawable.forder_back);
-            fItem.put(FV_FILE_NAME, "BACK");
+            fItem.put(FV_FILE_NAME, "...");
             fItem.put(FV_CONNECTION, "");
             fItem.put(FV_UPDATE_DT, "");
             fItem.put(FV_SyncBtn, "");
@@ -288,6 +290,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                                 fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + item.connectionName);
                                 fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
                                         sdf.format(item.updateTime));
+                                fItem.put(FV_IsRemote, "true");
                                 isUpdate = true;
                             }
                         }
@@ -295,6 +298,7 @@ public class FileMamagerFragment extends Fragment implements AbsListView.OnItemC
                             fItem.put(FV_CONNECTION, ctext.getString(R.string.label_source) + ctext.getString(R.string.label_local));
                             fItem.put(FV_UPDATE_DT, ctext.getString(R.string.label_last_update) +
                                     sdf.format(new Date(f1.lastModified())));
+                            fItem.put(FV_IsRemote, "false");
                         }
                     }
 
