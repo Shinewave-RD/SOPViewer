@@ -118,14 +118,18 @@ public class FlieAdapte extends BaseAdapter {
             itemView.FV_IMG.setImageDrawable(itemView.FV_IMG.getResources().getDrawable(mid));
             //itemView.viewBtn.setBackgroundDrawable(itemView.ItemButton.getResources().getDrawable(bid));
             if (fromType == FileMamagerFragment.FROM_MAIN_ACTIVITY) {
-                if (!name.equals("BACK") || (info.endsWith(mContext.getString(R.string.label_local)) && !name.toLowerCase().endsWith("pdf"))) {
+                if (name.equals("BACK")) {
+                    itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
+                    itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
+                } else if (info.endsWith(mContext.getString(R.string.label_local)) && name.toLowerCase().endsWith("pdf")) {
+                    itemView.viewBtn_Sync.setEnabled(false);
+                    itemView.viewBtn_Del.setVisibility(View.VISIBLE);
+                    itemView.viewBtn_Del.setOnClickListener(new ItemButtonDel_Click(position));
+                } else {
                     itemView.viewBtn_Sync.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Del.setVisibility(View.VISIBLE);
                     itemView.viewBtn_Sync.setOnClickListener(new ItemButtonSync_Click(position));
                     itemView.viewBtn_Del.setOnClickListener(new ItemButtonDel_Click(position));
-                } else {
-                    itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
-                    itemView.viewBtn_Del.setVisibility(View.INVISIBLE);
                 }
             } else if (fromType == FileMamagerFragment.FROM_PLAY_ITEM) {
                 itemView.viewBtn_Sync.setVisibility(View.INVISIBLE);
