@@ -139,9 +139,9 @@ public class PDFPlayActivity extends AppCompatActivity {
                 setup();
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Error!!");
-                builder.setMessage("Play list include no play item !!");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setTitle(getString(R.string.title_error));
+                builder.setMessage(getString(R.string.playlist_no_playitem));
+                builder.setPositiveButton(getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
@@ -251,7 +251,7 @@ public class PDFPlayActivity extends AppCompatActivity {
             }
             else
             {
-                Toast.makeText(this, pItem.getlocalFullFilePath() + " is not exist!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, String.format(getString(R.string.cannot_open_file_Path), pItem.getlocalFullFilePath()), Toast.LENGTH_LONG).show();
                 setup();
             }
         }
