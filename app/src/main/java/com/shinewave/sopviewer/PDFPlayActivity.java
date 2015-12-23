@@ -67,7 +67,7 @@ public class PDFPlayActivity extends AppCompatActivity {
             try {
                 obj = new JSONObject(jsonStr);
             } catch (Exception e) {
-                Toast.makeText(PDFPlayActivity.this, "Json format error", Toast.LENGTH_LONG).show();
+                Toast.makeText(PDFPlayActivity.this, getString(R.string.msg_json_error), Toast.LENGTH_LONG).show();
             }
             if (type == OUTER_TYPE_CONN) {
                 //Conn
@@ -76,7 +76,7 @@ public class PDFPlayActivity extends AppCompatActivity {
             } else if (type == OUTER_TYPE_PLAY) {
                 //Play
                 String msg = doOuterPlay(obj);
-                if (msg.startsWith("Succeed")) {
+                if (msg.startsWith(getString(R.string.dialog_succeed))) {
                     String[] nameArr = msg.split(",");
                     playListName = nameArr[1];
                 } else {
@@ -85,9 +85,9 @@ public class PDFPlayActivity extends AppCompatActivity {
             } else if (type == OUTER_TYPE_CONN_AND_PLAY) {
                 //Conn + Play
                 String msgConn = doOuterConn(obj);
-                if (msgConn.equals("Succeed")) {
+                if (msgConn.equals(getString(R.string.dialog_succeed))) {
                     String msgPlay = doOuterPlay(obj);
-                    if (msgPlay.startsWith("Succeed")) {
+                    if (msgPlay.startsWith(getString(R.string.dialog_succeed))) {
                         String[] nameArr = msgPlay.split(",");
                         playListName = nameArr[1];
                     } else {
@@ -171,8 +171,8 @@ public class PDFPlayActivity extends AppCompatActivity {
 
         if (loopCount >= plist.loop) {
             Intent returnIntent = new Intent();
-            returnIntent.putExtra("result","FINISH");
-            setResult(Activity.RESULT_OK,returnIntent);
+            returnIntent.putExtra("result", "FINISH");
+            setResult(Activity.RESULT_OK, returnIntent);
             finish();
             return;
         }
@@ -248,9 +248,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                 mPageSlider.setProgress(start);
                 updatePageNumView(start);
                 mDocView.refresh(false);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(this, String.format(getString(R.string.cannot_open_file_Path), pItem.getlocalFullFilePath()), Toast.LENGTH_LONG).show();
                 setup();
             }
@@ -406,15 +404,15 @@ public class PDFPlayActivity extends AppCompatActivity {
                 //建立Conn
                 String failedConn = CreateConnJason(downloadList);
                 if (failedConn.trim().equals("")) {
-                    res = "Succeed";
+                    res = getString(R.string.dialog_succeed);
                 } else {
-                    res = "Failed : \n";
+                    res = getString(R.string.dialog_failed) + ": \n";
                 }
             } else {
-                res = "Connection Format Error : \n" + resValid.substring(0, resValid.length() - 3);
+                res = getString(R.string.msg_conn_error) + ": \n" + resValid.substring(0, resValid.length() - 3);
             }
         } else {
-            res = "Json format error";
+            res = getString(R.string.msg_json_error);
         }
         return res;
     }
@@ -429,14 +427,14 @@ public class PDFPlayActivity extends AppCompatActivity {
                 //建立PlayList
                 boolean resPlay = CreatePlayJson(playListCreate);
                 if (resPlay)
-                    res = "Succeed," + playListCreate.playListName;
+                    res = getString(R.string.dialog_succeed) + "," + playListCreate.playListName;
                 else
-                    res = "Failed";
+                    res = getString(R.string.dialog_failed);
             } else {
-                res = "PlayList Format Error : \n" + resValidPlay.substring(0, resValidPlay.length() - 3);
+                res = getString(R.string.msg_play_error) + ": \n" + resValidPlay.substring(0, resValidPlay.length() - 3);
             }
         } else {
-            res = "Json format error";
+            res = getString(R.string.msg_json_error);
         }
         return res;
     }
@@ -494,7 +492,7 @@ public class PDFPlayActivity extends AppCompatActivity {
         try {
             for (ServerConnectionInfo info : infoList) {
                 if (info.connectionName == null || info.connectionName.trim().equals("")) {
-                    failedName.append("connectionName is null").append("\n");
+                    failedName.append(getString(R.string.msg_Conn_null)).append("\n");
                 } else if (info.id == null || info.id.trim().equals("") || info.password == null || info.password.trim().equals("") ||
                         info.url == null || info.url.trim().equals("") || info.fullFilePath == null || info.fullFilePath.trim().equals("") ||
                         info.fileSavePath == null || info.fileSavePath.trim().equals("")) {
@@ -514,7 +512,7 @@ public class PDFPlayActivity extends AppCompatActivity {
         StringBuilder failedName = new StringBuilder();
         try {
             if (pList.playListName == null || pList.playListName.trim().equals("")) {
-                failedName.append("PlayListName is null").append("\n");
+                failedName.append(getString(R.string.msg_play_null)).append("\n");
             } else if (pList.playListName.length() > 30 || String.valueOf(pList.loop).length() > 30 || pList.playListItem.size() == 0) {
                 failedName.append(pList.playListName).append("\n");
             } else if (pList.playListItem.size() > 0) {
@@ -607,12 +605,11 @@ public class PDFPlayActivity extends AppCompatActivity {
         return failedName.toString();
     }
 
-    public void onDestroy()
-    {
+    public void onDestroy() {
         if (mDocView != null) {
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 public void applyToView(View view) {
-                    ((MuPDFView)view).releaseBitmaps();
+                    ((MuPDFView) view).releaseBitmaps();
                 }
             });
         }

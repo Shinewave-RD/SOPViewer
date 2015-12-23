@@ -90,4 +90,9 @@
     <string name="download_finish">Download Finish.</string>
     <string name="title_connection_setting">Connection Setting</string>
     <string name="playlist_no_playitem">Play list include no play item!!</string>
+    <string name="msg_json_error">Json format error.</string>
+    <string name="msg_conn_error">Connection Format Error.</string>
+    <string name="msg_play_error">PlayList Format Error.</string>
+    <string name="msg_play_null">PlayListName is empty.</string>
+    <string name="msg_Conn_null">ConnectionName is empty.</string>
 </resources>

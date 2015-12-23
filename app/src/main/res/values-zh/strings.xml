@@ -88,4 +88,9 @@
     <string name="download_finish">下载完成</string>
     <string name="title_connection_setting">连线设定</string>
     <string name="playlist_no_playitem">播放清单内无播放项目</string>
+    <string name="msg_json_error">Json format error.</string>
+    <string name="msg_conn_error">Connection Format Error.</string>
+    <string name="msg_play_error">PlayList Format Error.</string>
+    <string name="msg_play_null">PlayListName is empty.</string>
+    <string name="msg_Conn_null">ConnectionName is empty.</string>
 </resources>
