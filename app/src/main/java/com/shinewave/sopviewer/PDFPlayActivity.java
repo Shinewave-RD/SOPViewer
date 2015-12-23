@@ -148,15 +148,14 @@ public class PDFPlayActivity extends AppCompatActivity {
                 builder.create().show();
             }
 
-            Button btnEdit = (Button) findViewById(R.id.btn_finish);
-            btnEdit.setOnClickListener(new View.OnClickListener() {
+            Button btnFinish = (Button) findViewById(R.id.btn_finish);
+            btnFinish.setOnClickListener(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
-                    String message = "Save";
-                    Intent intent = new Intent();
-                    intent.putExtra("MESSAGE", message);
-                    setResult(RESULT_OK, intent);
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("result", "FINISH");
+                    setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }
             });
