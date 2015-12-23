@@ -74,6 +74,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
     private FlieAdapte mAdapter;
     private ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
     private HashMap<String,Object> o;
+    private Context context;
 
     // TODO: Rename and change types of parameters
     public static RemoteFileManagerFragment newInstance(int param1, String param2) {
@@ -95,7 +96,7 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Context context = getActivity();
+        context = getActivity();
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -210,9 +211,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
             } catch (Exception ec) {
                 Log.e("doConnection", ec.toString());
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Error!!");
-                builder.setMessage("Connect Error!! Please check the Connection setting.");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setTitle(context.getString(R.string.title_error));
+                builder.setMessage(context.getString(R.string.connect_error));
+                builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
@@ -337,9 +338,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 } catch (Exception e) {
                     Log.e("doConnection", e.toString());
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Error!!");
-                    builder.setMessage("Connect Error!! Please check the Connection setting.");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    builder.setTitle(context.getString(R.string.title_error));
+                    builder.setMessage(context.getString(R.string.connect_error));
+                    builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                         }
                     });
@@ -434,9 +435,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 } catch (Exception e) {
                     Log.e("doConnection", e.toString());
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Error!!");
-                    builder.setMessage("Connect Error!! Please check the Connection setting.");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    builder.setTitle(context.getString(R.string.title_error));
+                    builder.setMessage(context.getString(R.string.connect_error));
+                    builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                         }
                     });
@@ -469,15 +470,15 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                             new DownloadFtpFile().execute(sf);
                         } else {
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Alert!!");
-                            builder.setMessage("File exist !! Are you sure to overwrite?");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            builder.setTitle(context.getString(R.string.title_alert));
+                            builder.setMessage(context.getString(R.string.file_exist_overwrite));
+                            builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     new DownloadFtpFile().execute(sf);
                                 }
                             });
 
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
                                 }
@@ -495,15 +496,15 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                             new DownloadSmbFile().execute(sf);
                         } else {
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Alert!!");
-                            builder.setMessage("File exist !! Are you sure to overwrite?");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            builder.setTitle(context.getString(R.string.title_alert));
+                            builder.setMessage(context.getString(R.string.file_exist_overwrite));
+                            builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     new DownloadSmbFile().execute(sf);
                                 }
                             });
 
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
                                 }
@@ -516,9 +517,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
             } catch (Exception ec) {
                 Log.e("doConnection", ec.toString());
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Error!!");
-                builder.setMessage("Download Error!! Please check the Connection setting.");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setTitle(context.getString(R.string.title_error));
+                builder.setMessage(context.getString(R.string.connect_error));
+                builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
@@ -549,9 +550,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 return file;
             } catch (Exception e) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Error!!");
-                builder.setMessage("Download Error!! Please check the Connection setting.");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setTitle(context.getString(R.string.title_error));
+                builder.setMessage(context.getString(R.string.download_error));
+                builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
@@ -569,8 +570,8 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 return;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Download Finish.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            builder.setMessage(context.getString(R.string.download_finish));
+            builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                 }
             });
@@ -616,9 +617,9 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 return localPath;
             } catch (Exception e) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Error!!");
-                builder.setMessage("Download Error!! Please check the Connection setting.");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setTitle(context.getString(R.string.title_error));
+                builder.setMessage(context.getString(R.string.download_error));
+                builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
@@ -636,8 +637,8 @@ public class RemoteFileManagerFragment extends Fragment implements AbsListView.O
                 return;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Download Finish.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            builder.setMessage(context.getString(R.string.download_finish));
+            builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                 }
             });

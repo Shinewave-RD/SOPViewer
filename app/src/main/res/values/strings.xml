@@ -77,4 +77,16 @@
     <string name="dialog_folder_white">Folder name must be filled.</string>
     <string name="dialog_format_error">Format error</string>
     <string name="dialog_same_name">Name is existed.</string>
+    <string name="label_connect">Connect</string>
+    <string name="label_download">Download</string>
+    <string name="label_fit_screen">Fit Screen</string>
+    <string name="label_fit_width">Fit Width</string>
+    <string name="label_fit_height">Fit Height</string>
+    <string name="title_error">Error!!</string>
+    <string name="connect_error">Connect Error!! Please check the Connection setting.</string>
+    <string name="download_error">Download Error!! Please check the Connection setting.</string>
+    <string name="title_alert">Alert!!</string>
+    <string name="file_exist_overwrite">File exist!! Are you sure to overwrite?</string>
+    <string name="download_finish">Download Finish.</string>
+    <string name="title_connection_setting">Connection Setting</string>
 </resources>

@@ -18,7 +18,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="32dp"
                 android:layout_margin="5dp"
-                android:text="Fit Screen"
+                android:text="@string/label_fit_screen"
                 android:checked="true"/>
 
             <RadioButton
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="32dp"
                 android:layout_margin="5dp"
-                android:text="Fit Width" />
+                android:text="@string/label_fit_width" />
 
             <RadioButton
                 android:id="@+id/rbFitHeight"
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="32dp"
                 android:layout_margin="5dp"
-                android:text="Fit Height" />
+                android:text="@string/label_fit_height" />
         </RadioGroup>
 
         <LinearLayout

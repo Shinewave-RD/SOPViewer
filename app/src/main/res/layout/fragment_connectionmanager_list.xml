@@ -41,7 +41,7 @@
                         android:id="@+id/createBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Create" />
+                        android:text="@string/label_create" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -53,7 +53,7 @@
                         android:id="@+id/editBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Edit" />
+                        android:text="@string/label_edit" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -65,7 +65,7 @@
                         android:id="@+id/deleteBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Delete" />
+                        android:text="@string/label_delete" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -77,7 +77,7 @@
                         android:id="@+id/connectBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Connect" />
+                        android:text="@string/label_connect" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

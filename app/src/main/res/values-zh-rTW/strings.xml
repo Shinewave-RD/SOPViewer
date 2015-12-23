@@ -76,4 +76,15 @@
     <string name="dialog_folder_white">請輸入資料夾名稱</string>
     <string name="dialog_format_error">格式不符，內容為空或包含特殊字元。</string>
     <string name="dialog_same_name">名稱重複</string>
+    <string name="label_connect">連線</string>
+    <string name="label_fit_screen">適合營幕</string>
+    <string name="label_fit_width">適合寬度</string>
+    <string name="label_fit_height">適合高度</string>
+    <string name="title_error">錯誤</string>
+    <string name="connect_error">連線錯誤!! 請檢查連線設定</string>
+    <string name="download_error">下載錯誤!! 請檢查連線設定</string>
+    <string name="title_alert">警告</string>
+    <string name="file_exist_overwrite">檔案已存在!! 是否要覆蓋?</string>
+    <string name="download_finish">下載完成</string>
+    <string name="title_connection_setting">連線設定</string>
 </resources>

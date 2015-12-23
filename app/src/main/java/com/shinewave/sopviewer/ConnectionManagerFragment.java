@@ -2,6 +2,7 @@ package com.shinewave.sopviewer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 //import android.app.Fragment;
@@ -66,6 +67,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     private IFragmentInteraction mListener;
     private ArrayList<HashMap<String,Object>> connList = new ArrayList<HashMap<String,Object>>();
     private ConnectionInfo info;
+    private Context context;
 
     /**
      * The fragment's ListView/GridView.
@@ -98,6 +100,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getActivity();
 
         if (getArguments() != null) {
             mParam1 = getArguments().getInt(ARG_PARAM1);
@@ -157,9 +160,9 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Alert!!");
-                builder.setMessage("Are you sure to delete record");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setTitle(context.getString(R.string.title_alert));
+                builder.setMessage(context.getString(R.string.dialog_delete_record));
+                builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         deleteConnection(info.connectionName);
                         getConnectionList();
@@ -168,7 +171,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
                     }
                 });
 
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                     }
@@ -281,7 +284,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View textEntryView = factory.inflate(R.layout.connection_setting, null);
-        builder.setTitle("Connection Setting");
+        builder.setTitle(context.getString(R.string.title_connection_setting));
         builder.setView(textEntryView);
 
         ArrayAdapter protocolAdapter = new ArrayAdapter<ConnectionInfo.ProtocolType>(getActivity(),
@@ -316,7 +319,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
                 }
         }
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(context.getString(R.string.okay), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 ConnectionInfo info = new ConnectionInfo();
                 info.connectionName = name.getText().toString();
@@ -343,7 +346,7 @@ public class ConnectionManagerFragment extends Fragment implements AbsListView.O
             }
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
             }

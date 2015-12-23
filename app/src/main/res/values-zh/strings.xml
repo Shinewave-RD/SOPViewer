@@ -75,4 +75,16 @@
     <string name="dialog_folder_white">Folder name must be filled.</string>
     <string name="dialog_format_error">Format error</string>
     <string name="dialog_same_name">Name is existed.</string>
+    <string name="label_connect">连线</string>
+    <string name="label_download">下载</string>
+    <string name="label_fit_screen">适合屏幕</string>
+    <string name="label_fit_width">适合宽度</string>
+    <string name="label_fit_height">适合高度</string>
+    <string name="title_error">错误</string>
+    <string name="connect_error">连线错误!! 请检查连线设定</string>
+    <string name="download_error">下载错误!! 请检查连线设定</string>
+    <string name="title_alert">警告</string>
+    <string name="file_exist_overwrite">档案已存在!! 是否要覆盖?</string>
+    <string name="download_finish">下载完成</string>
+    <string name="title_connection_setting">连线设定</string>
 </resources>
