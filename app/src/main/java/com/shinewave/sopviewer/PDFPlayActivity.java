@@ -47,6 +47,8 @@ public class PDFPlayActivity extends AppCompatActivity {
     private int playItemCount = 0;
     private int loopCount = 0;
     private PlayList plist;
+    private Timer timer = null;
+    private RelativeLayout layout = null;
     private static final int OUTER_TYPE_CONN = 1;
     private static final int OUTER_TYPE_PLAY = 2;
     private static final int OUTER_TYPE_CONN_AND_PLAY = 3;
@@ -131,7 +133,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                     }
                 };
 
-                RelativeLayout layout = new RelativeLayout(this);
+                layout = new RelativeLayout(this);
                 layout.addView(mDocView);
                 layout.addView(mButtonsView);
                 setContentView(layout);
@@ -163,15 +165,30 @@ public class PDFPlayActivity extends AppCompatActivity {
     }
 
     private void setup() {
+        if (mDocView != null) {
+            mDocView.applyToChildren(new ReaderView.ViewMapper() {
+                public void applyToView(View view) {
+                    ((MuPDFView) view).releaseBitmaps();
+                }
+            });
+        }
+
+        core = null;
+
+        System.gc();
+
         if (playItemCount >= plist.playListItem.size()) {
             loopCount++;
             playItemCount = 0;
         }
 
         if (loopCount >= plist.loop) {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("result", "FINISH");
-            setResult(Activity.RESULT_OK, returnIntent);
+            Intent it = getIntent();
+            if (it.getAction() != null && it.getAction().equals("com.shinewave.sopviewer.PDFPlayActivity")) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("result", "FINISH");
+                setResult(Activity.RESULT_OK, returnIntent);
+            }
             finish();
             return;
         }
@@ -182,15 +199,13 @@ public class PDFPlayActivity extends AppCompatActivity {
             mPageNumberView = (TextView) mButtonsView.findViewById(R.id.pageNumber);
 
             playItemCount++;
-            core = null;
+
             core = openFile(pItem.getlocalFullFilePath());
             if (core != null) {
                 final List seqList = parseStringRange(pItem.strPages);
                 handler = null;
                 handler = new Handler() {
-                    Timer timer;
                     int idx = 0;
-
                     public void handleMessage(Message msg) {
                         if (msg.what == mDocView.getCurrent()) {
                             idx++;
@@ -247,7 +262,9 @@ public class PDFPlayActivity extends AppCompatActivity {
                 mPageSlider.setProgress(start);
                 updatePageNumView(start);
                 mDocView.refresh(false);
-            } else {
+            }
+            else
+            {
                 Toast.makeText(this, String.format(getString(R.string.cannot_open_file_Path), pItem.getlocalFullFilePath()), Toast.LENGTH_LONG).show();
                 setup();
             }
@@ -604,19 +621,35 @@ public class PDFPlayActivity extends AppCompatActivity {
         return failedName.toString();
     }
 
-    public void onDestroy() {
+    public void onDestroy()
+    {
         if (mDocView != null) {
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 public void applyToView(View view) {
-                    ((MuPDFView) view).releaseBitmaps();
+                    ((MuPDFView)view).releaseBitmaps();
                 }
             });
+            mDocView = null;
         }
         if (core != null)
             core.onDestroy();
-
         core = null;
+
+        layout = null;
+        mButtonsView = null;
+        mPageSlider = null;
+        mPageNumberView = null;
+        handler = null;
+
+        if(timer !=null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
+
         super.onDestroy();
+
+        System.gc();
     }
 
 }

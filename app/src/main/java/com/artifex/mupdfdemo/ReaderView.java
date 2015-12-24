@@ -807,7 +807,6 @@ public class ReaderView
 	@Override
 	public void setAdapter(Adapter adapter) {
 		mAdapter = adapter;
-		mCurrent = 0;
 		requestLayout();
 	}
 
