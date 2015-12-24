@@ -38,8 +38,8 @@
     <string name="label_folder_name">Folder Name</string>
     <string name="label_sync_all">Sync All</string>
     <string name="label_file_name">File Name</string>
-    <string name="label_modify">Modify Date:</string>
-    <string name="label_size">Size:</string>
+    <string name="label_modify">修改日期:</string>
+    <string name="label_size">大小:</string>
     <string name="hello_world">Hello world!</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_select">Select</string>
