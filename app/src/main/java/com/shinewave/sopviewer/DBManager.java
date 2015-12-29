@@ -447,4 +447,19 @@ public class DBManager {
         db.close();
         return res;
     }
+
+    public static ConnectionInfo getConnectionListForTest(String connectionName) {
+        ConnectionInfo info = getConnection(connectionName);
+        return info;
+    }
+
+    public static PlayList getPlayListForTest(String playListName) {
+        PlayList info = getPlayItem(playListName);
+        return info;
+    }
+
+    public static FileInfo getFileInfoForTest(String localFullFilePath) {
+        FileInfo info = getSingleFileInfo(localFullFilePath);
+        return info;
+    }
 }
