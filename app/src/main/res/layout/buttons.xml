@@ -45,7 +45,8 @@
 			android:text="Finish"
 			android:id="@+id/btn_finish"
 			android:layout_above="@+id/pageSlider"
-			android:layout_alignParentRight="true" />
+			android:layout_alignParentRight="true"
+			android:visibility="invisible"/>
 
 	</RelativeLayout>
 <!--
