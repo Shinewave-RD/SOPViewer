@@ -47,6 +47,7 @@ public class PDFPlayActivity extends AppCompatActivity {
     private Handler handler;
     private int playItemCount = 0;
     private int loopCount = 0;
+    private int cannotOpenCount = 0;
     private PlayList plist;
     private Timer timer = null;
     private RelativeLayout layout = null;
@@ -54,7 +55,6 @@ public class PDFPlayActivity extends AppCompatActivity {
     private static final int OUTER_TYPE_PLAY = 2;
     private static final int OUTER_TYPE_CONN_AND_PLAY = 3;
     private String resultS;
-    private StringBuilder resMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,8 +127,6 @@ public class PDFPlayActivity extends AppCompatActivity {
             PDFPlayActivity.this.setResult(RESULT_OK, returnIntent);
             finish();
         } else {
-            resMsg = new StringBuilder();
-            resMsg.append(getString(R.string.cannot_open_file_Path)).append("\n");
             plist = DBManager.getPlayItem(playListName);
             if (plist != null && plist.playListItem.size() > 0) {
                 mDocView = new MuPDFReaderView(this) {
@@ -160,7 +158,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                 layout.addView(mButtonsView);
                 setContentView(layout);
 
-                setup("");
+                setup();
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(getString(R.string.title_error));
@@ -186,7 +184,7 @@ public class PDFPlayActivity extends AppCompatActivity {
         }
     }
 
-    private void setup(String msg) {
+    private void setup() {
         if (mDocView != null) {
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 public void applyToView(View view) {
@@ -204,17 +202,12 @@ public class PDFPlayActivity extends AppCompatActivity {
             playItemCount = 0;
         }
 
-        if (loopCount >= plist.loop) {
+        if (loopCount >= plist.loop || cannotOpenCount >= plist.playListItem.size()) {
             Intent it = getIntent();
             if (it.getAction() != null && it.getAction().equals("com.shinewave.sopviewer.PDFPlayActivity")) {
                 Intent returnIntent = new Intent();
-                if (!msg.equals(""))
-                    returnIntent.putExtra("result", msg.substring(0, msg.length() - 1));
-                else
-                    returnIntent.putExtra("result", "FINISH");
+                returnIntent.putExtra("result", "FINISH");
                 setResult(Activity.RESULT_OK, returnIntent);
-            } else {
-                Toast.makeText(this, msg.substring(0, msg.length() - 1), Toast.LENGTH_LONG).show();
             }
             finish();
             return;
@@ -253,7 +246,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                                             try {
                                                 mDocView.setDisplayedViewIndex((int) seqList.get(idx));
                                             } catch (Exception e) {
-                                                setup("");
+                                                setup();
                                             }
                                         }
                                     });
@@ -292,8 +285,9 @@ public class PDFPlayActivity extends AppCompatActivity {
                 mDocView.refresh(false);
             } else {
                 if (loopCount == 0)
-                    resMsg.append(pItem.getlocalFullFilePath()).append("\n");
-                setup(resMsg.toString());
+                    cannotOpenCount++;
+                Toast.makeText(this, getString(R.string.cannot_open_file_Path) + pItem.getlocalFullFilePath(), Toast.LENGTH_LONG).show();
+                setup();
             }
         }
     }
