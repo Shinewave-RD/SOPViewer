@@ -29,6 +29,7 @@ import com.artifex.mupdfdemo.ReaderView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -52,6 +53,7 @@ public class PDFPlayActivity extends AppCompatActivity {
     private static final int OUTER_TYPE_CONN = 1;
     private static final int OUTER_TYPE_PLAY = 2;
     private static final int OUTER_TYPE_CONN_AND_PLAY = 3;
+    private String resultS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,15 @@ public class PDFPlayActivity extends AppCompatActivity {
         mButtonsView = getLayoutInflater().inflate(R.layout.buttons, null);
         //mPageSlider = (SeekBar) mButtonsView.findViewById(R.id.pageSlider);
         //mPageNumberView = (TextView) mButtonsView.findViewById(R.id.pageNumber);
+
+        try {
+            DataBaseHelper dbHelper = new DataBaseHelper(this.getApplicationContext());
+            dbHelper.createDataBase();
+            DBManager.initDBHelp(dbHelper);
+        } catch (IOException e) {
+            //
+        }
+
         Intent it = getIntent();
         String playListName = "";
         if (it.getAction() != null && it.getAction().equals("com.shinewave.sopviewer.PDFPlayActivity")) {
@@ -69,12 +80,14 @@ public class PDFPlayActivity extends AppCompatActivity {
             try {
                 obj = new JSONObject(jsonStr);
             } catch (Exception e) {
-                Toast.makeText(PDFPlayActivity.this, getString(R.string.msg_json_error), Toast.LENGTH_LONG).show();
+                resultS = getString(R.string.msg_json_error);
+                //Toast.makeText(PDFPlayActivity.this, getString(R.string.msg_json_error), Toast.LENGTH_LONG).show();
             }
             if (type == OUTER_TYPE_CONN) {
                 //Conn
                 String msg = doOuterConn(obj);
-                Toast.makeText(PDFPlayActivity.this, msg, Toast.LENGTH_LONG).show();
+                resultS = msg;
+                //Toast.makeText(PDFPlayActivity.this, msg, Toast.LENGTH_LONG).show();
             } else if (type == OUTER_TYPE_PLAY) {
                 //Play
                 String msg = doOuterPlay(obj);
@@ -82,7 +95,8 @@ public class PDFPlayActivity extends AppCompatActivity {
                     String[] nameArr = msg.split(",");
                     playListName = nameArr[1];
                 } else {
-                    Toast.makeText(PDFPlayActivity.this, msg, Toast.LENGTH_LONG).show();
+                    resultS = msg;
+                    //Toast.makeText(PDFPlayActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
             } else if (type == OUTER_TYPE_CONN_AND_PLAY) {
                 //Conn + Play
@@ -93,10 +107,12 @@ public class PDFPlayActivity extends AppCompatActivity {
                         String[] nameArr = msgPlay.split(",");
                         playListName = nameArr[1];
                     } else {
-                        Toast.makeText(PDFPlayActivity.this, msgPlay, Toast.LENGTH_LONG).show();
+                        resultS = msgPlay;
+                        //Toast.makeText(PDFPlayActivity.this, msgPlay, Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(PDFPlayActivity.this, msgConn, Toast.LENGTH_LONG).show();
+                    resultS = msgConn;
+                    //Toast.makeText(PDFPlayActivity.this, msgConn, Toast.LENGTH_LONG).show();
                 }
             }
         } else {
@@ -105,7 +121,10 @@ public class PDFPlayActivity extends AppCompatActivity {
         }
 
         if (playListName == null || playListName.equals("")) {
-            this.finish();
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("result", resultS);
+            PDFPlayActivity.this.setResult(RESULT_OK, returnIntent);
+            finish();
         } else {
             plist = DBManager.getPlayItem(playListName);
             if (plist != null && plist.playListItem.size() > 0) {
@@ -206,6 +225,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                 handler = null;
                 handler = new Handler() {
                     int idx = 0;
+
                     public void handleMessage(Message msg) {
                         if (msg.what == mDocView.getCurrent()) {
                             idx++;
@@ -262,9 +282,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                 mPageSlider.setProgress(start);
                 updatePageNumView(start);
                 mDocView.refresh(false);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(this, String.format(getString(R.string.cannot_open_file_Path), pItem.getlocalFullFilePath()), Toast.LENGTH_LONG).show();
                 setup();
             }
@@ -425,7 +443,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                     res = getString(R.string.dialog_failed) + ": \n";
                 }
             } else {
-                res = getString(R.string.msg_conn_error) + ": \n" + resValid.substring(0, resValid.length() - 3);
+                res = getString(R.string.msg_conn_error) + ": \n" + resValid.substring(0, resValid.length() - 1);
             }
         } else {
             res = getString(R.string.msg_json_error);
@@ -447,7 +465,7 @@ public class PDFPlayActivity extends AppCompatActivity {
                 else
                     res = getString(R.string.dialog_failed);
             } else {
-                res = getString(R.string.msg_play_error) + ": \n" + resValidPlay.substring(0, resValidPlay.length() - 3);
+                res = getString(R.string.msg_play_error) + ": \n" + resValidPlay.substring(0, resValidPlay.length() - 1);
             }
         } else {
             res = getString(R.string.msg_json_error);
@@ -621,12 +639,11 @@ public class PDFPlayActivity extends AppCompatActivity {
         return failedName.toString();
     }
 
-    public void onDestroy()
-    {
+    public void onDestroy() {
         if (mDocView != null) {
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 public void applyToView(View view) {
-                    ((MuPDFView)view).releaseBitmaps();
+                    ((MuPDFView) view).releaseBitmaps();
                 }
             });
             mDocView = null;
@@ -641,7 +658,7 @@ public class PDFPlayActivity extends AppCompatActivity {
         mPageNumberView = null;
         handler = null;
 
-        if(timer !=null) {
+        if (timer != null) {
             timer.cancel();
             timer.purge();
             timer = null;
